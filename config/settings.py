@@ -173,8 +173,9 @@ STORAGES = {
             "region_name": env("AWS_S3_REGION_NAME"),
             "default_acl": "public-read",
             "querystring_auth": False,
-            "file_overwrite": False,
+            "file_overwrite": True,
             "addressing_style": "path",
+            "signature_version": "s3v4",
         },
     },
     "staticfiles": {
