@@ -174,6 +174,7 @@ STORAGES = {
             "default_acl": "public-read",
             "querystring_auth": False,
             "file_overwrite": False,
+            "addressing_style": "path",
         },
     },
     "staticfiles": {
