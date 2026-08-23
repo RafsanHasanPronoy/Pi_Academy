@@ -1,0 +1,2492 @@
+--
+-- PostgreSQL database dump
+--
+
+
+-- Dumped from database version 18.4
+-- Dumped by pg_dump version 18.4
+
+-- Started on 2026-08-23 01:51:58
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 244 (class 1259 OID 17019)
+-- Name: achievements; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.achievements (
+    id bigint NOT NULL,
+    title character varying(200) NOT NULL,
+    description text,
+    image_url text,
+    achievement_date date,
+    is_published boolean DEFAULT true NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.achievements OWNER TO postgres;
+
+--
+-- TOC entry 243 (class 1259 OID 17018)
+-- Name: achievements_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.achievements ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.achievements_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 250 (class 1259 OID 17064)
+-- Name: admission_info; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.admission_info (
+    id bigint NOT NULL,
+    title character varying(200) NOT NULL,
+    description text,
+    admission_fee numeric(10,2),
+    monthly_fee numeric(10,2),
+    duration character varying(100),
+    is_active boolean DEFAULT true NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.admission_info OWNER TO postgres;
+
+--
+-- TOC entry 249 (class 1259 OID 17063)
+-- Name: admission_info_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.admission_info ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.admission_info_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 252 (class 1259 OID 17078)
+-- Name: admission_inquiries; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.admission_inquiries (
+    id bigint NOT NULL,
+    student_name character varying(150) NOT NULL,
+    student_phone character varying(20) NOT NULL,
+    guardian_name character varying(150),
+    guardian_phone character varying(20),
+    class_id bigint,
+    message text,
+    status character varying(20) DEFAULT 'New'::character varying NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT valid_inquiry_status CHECK (((status)::text = ANY ((ARRAY['New'::character varying, 'Contacted'::character varying, 'Admitted'::character varying, 'Rejected'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.admission_inquiries OWNER TO postgres;
+
+--
+-- TOC entry 251 (class 1259 OID 17077)
+-- Name: admission_inquiries_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.admission_inquiries ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.admission_inquiries_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 240 (class 1259 OID 16969)
+-- Name: attendance; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.attendance (
+    id bigint NOT NULL,
+    student_id bigint NOT NULL,
+    batch_id bigint NOT NULL,
+    attendance_date date DEFAULT CURRENT_DATE NOT NULL,
+    status character varying(20) NOT NULL,
+    remarks text,
+    CONSTRAINT valid_attendance_status CHECK (((status)::text = ANY ((ARRAY['Present'::character varying, 'Absent'::character varying, 'Late'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.attendance OWNER TO postgres;
+
+--
+-- TOC entry 239 (class 1259 OID 16968)
+-- Name: attendance_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.attendance ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.attendance_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 262 (class 1259 OID 17166)
+-- Name: auth_group; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.auth_group (
+    id integer NOT NULL,
+    name character varying(150) NOT NULL
+);
+
+
+ALTER TABLE public.auth_group OWNER TO postgres;
+
+--
+-- TOC entry 261 (class 1259 OID 17165)
+-- Name: auth_group_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.auth_group ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.auth_group_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 264 (class 1259 OID 17176)
+-- Name: auth_group_permissions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.auth_group_permissions (
+    id bigint NOT NULL,
+    group_id integer NOT NULL,
+    permission_id integer NOT NULL
+);
+
+
+ALTER TABLE public.auth_group_permissions OWNER TO postgres;
+
+--
+-- TOC entry 263 (class 1259 OID 17175)
+-- Name: auth_group_permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.auth_group_permissions ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.auth_group_permissions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 260 (class 1259 OID 17156)
+-- Name: auth_permission; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.auth_permission (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    content_type_id integer NOT NULL,
+    codename character varying(100) NOT NULL
+);
+
+
+ALTER TABLE public.auth_permission OWNER TO postgres;
+
+--
+-- TOC entry 259 (class 1259 OID 17155)
+-- Name: auth_permission_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.auth_permission ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.auth_permission_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 266 (class 1259 OID 17185)
+-- Name: auth_user; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.auth_user (
+    id integer NOT NULL,
+    password character varying(128) NOT NULL,
+    last_login timestamp with time zone,
+    is_superuser boolean NOT NULL,
+    username character varying(150) NOT NULL,
+    first_name character varying(150) NOT NULL,
+    last_name character varying(150) NOT NULL,
+    email character varying(254) NOT NULL,
+    is_staff boolean NOT NULL,
+    is_active boolean NOT NULL,
+    date_joined timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.auth_user OWNER TO postgres;
+
+--
+-- TOC entry 268 (class 1259 OID 17204)
+-- Name: auth_user_groups; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.auth_user_groups (
+    id bigint NOT NULL,
+    user_id integer NOT NULL,
+    group_id integer NOT NULL
+);
+
+
+ALTER TABLE public.auth_user_groups OWNER TO postgres;
+
+--
+-- TOC entry 267 (class 1259 OID 17203)
+-- Name: auth_user_groups_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.auth_user_groups ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.auth_user_groups_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 265 (class 1259 OID 17184)
+-- Name: auth_user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.auth_user ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.auth_user_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 270 (class 1259 OID 17213)
+-- Name: auth_user_user_permissions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.auth_user_user_permissions (
+    id bigint NOT NULL,
+    user_id integer NOT NULL,
+    permission_id integer NOT NULL
+);
+
+
+ALTER TABLE public.auth_user_user_permissions OWNER TO postgres;
+
+--
+-- TOC entry 269 (class 1259 OID 17212)
+-- Name: auth_user_user_permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.auth_user_user_permissions ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.auth_user_user_permissions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 223 (class 1259 OID 16790)
+-- Name: batches; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.batches (
+    id bigint NOT NULL,
+    class_id bigint NOT NULL,
+    batch_name character varying(100) NOT NULL,
+    room character varying(50),
+    start_time time without time zone,
+    end_time time without time zone,
+    CONSTRAINT valid_batch_time CHECK (((start_time IS NULL) OR (end_time IS NULL) OR (start_time < end_time)))
+);
+
+
+ALTER TABLE public.batches OWNER TO postgres;
+
+--
+-- TOC entry 222 (class 1259 OID 16789)
+-- Name: batches_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.batches ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.batches_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 232 (class 1259 OID 16874)
+-- Name: class_schedule; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.class_schedule (
+    id bigint NOT NULL,
+    batch_id bigint NOT NULL,
+    teacher_id bigint NOT NULL,
+    subject_id bigint NOT NULL,
+    day_of_week character varying(20) NOT NULL,
+    start_time time without time zone NOT NULL,
+    end_time time without time zone NOT NULL,
+    room character varying(50),
+    class_id bigint NOT NULL,
+    status character varying(20) DEFAULT 'Active'::character varying NOT NULL,
+    notes text,
+    CONSTRAINT valid_class_schedule_time CHECK ((end_time > start_time)),
+    CONSTRAINT valid_day CHECK (((day_of_week)::text = ANY ((ARRAY['Sunday'::character varying, 'Monday'::character varying, 'Tuesday'::character varying, 'Wednesday'::character varying, 'Thursday'::character varying, 'Friday'::character varying, 'Saturday'::character varying])::text[]))),
+    CONSTRAINT valid_schedule_time CHECK ((start_time < end_time))
+);
+
+
+ALTER TABLE public.class_schedule OWNER TO postgres;
+
+--
+-- TOC entry 231 (class 1259 OID 16873)
+-- Name: class_schedule_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.class_schedule ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.class_schedule_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 221 (class 1259 OID 16779)
+-- Name: classes; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.classes (
+    id bigint NOT NULL,
+    class_name character varying(100) NOT NULL,
+    academic_year integer NOT NULL
+);
+
+
+ALTER TABLE public.classes OWNER TO postgres;
+
+--
+-- TOC entry 220 (class 1259 OID 16778)
+-- Name: classes_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.classes ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.classes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 254 (class 1259 OID 17099)
+-- Name: contact_messages; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.contact_messages (
+    id bigint NOT NULL,
+    name character varying(150) NOT NULL,
+    phone character varying(20),
+    email character varying(150),
+    message text NOT NULL,
+    status character varying(20) DEFAULT 'Unread'::character varying NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT valid_message_status CHECK (((status)::text = ANY ((ARRAY['Unread'::character varying, 'Read'::character varying, 'Replied'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.contact_messages OWNER TO postgres;
+
+--
+-- TOC entry 253 (class 1259 OID 17098)
+-- Name: contact_messages_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.contact_messages ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.contact_messages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 272 (class 1259 OID 17274)
+-- Name: django_admin_log; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.django_admin_log (
+    id integer NOT NULL,
+    action_time timestamp with time zone NOT NULL,
+    object_id text,
+    object_repr character varying(200) NOT NULL,
+    action_flag smallint NOT NULL,
+    change_message text NOT NULL,
+    content_type_id integer,
+    user_id integer NOT NULL,
+    CONSTRAINT django_admin_log_action_flag_check CHECK ((action_flag >= 0))
+);
+
+
+ALTER TABLE public.django_admin_log OWNER TO postgres;
+
+--
+-- TOC entry 271 (class 1259 OID 17273)
+-- Name: django_admin_log_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.django_admin_log ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.django_admin_log_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 258 (class 1259 OID 17144)
+-- Name: django_content_type; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.django_content_type (
+    id integer NOT NULL,
+    app_label character varying(100) NOT NULL,
+    model character varying(100) NOT NULL
+);
+
+
+ALTER TABLE public.django_content_type OWNER TO postgres;
+
+--
+-- TOC entry 257 (class 1259 OID 17143)
+-- Name: django_content_type_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.django_content_type ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.django_content_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 256 (class 1259 OID 17132)
+-- Name: django_migrations; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.django_migrations (
+    id bigint NOT NULL,
+    app character varying(255) NOT NULL,
+    name character varying(255) NOT NULL,
+    applied timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.django_migrations OWNER TO postgres;
+
+--
+-- TOC entry 255 (class 1259 OID 17131)
+-- Name: django_migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.django_migrations ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.django_migrations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 273 (class 1259 OID 17314)
+-- Name: django_session; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.django_session (
+    session_key character varying(40) NOT NULL,
+    session_data text NOT NULL,
+    expire_date timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public.django_session OWNER TO postgres;
+
+--
+-- TOC entry 236 (class 1259 OID 16919)
+-- Name: exam_results; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.exam_results (
+    id bigint NOT NULL,
+    exam_id bigint NOT NULL,
+    student_id bigint NOT NULL,
+    subject_id bigint NOT NULL,
+    marks numeric(5,2) NOT NULL,
+    grade character varying(10),
+    CONSTRAINT valid_marks CHECK (((marks >= (0)::numeric) AND (marks <= (100)::numeric)))
+);
+
+
+ALTER TABLE public.exam_results OWNER TO postgres;
+
+--
+-- TOC entry 235 (class 1259 OID 16918)
+-- Name: exam_results_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.exam_results ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.exam_results_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 234 (class 1259 OID 16904)
+-- Name: exams; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.exams (
+    id bigint NOT NULL,
+    class_id bigint NOT NULL,
+    exam_name character varying(100) NOT NULL,
+    exam_date date NOT NULL
+);
+
+
+ALTER TABLE public.exams OWNER TO postgres;
+
+--
+-- TOC entry 233 (class 1259 OID 16903)
+-- Name: exams_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.exams ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.exams_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 227 (class 1259 OID 16835)
+-- Name: faculty; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.faculty (
+    id bigint NOT NULL,
+    full_name character varying(150) NOT NULL,
+    designation character varying(100),
+    phone character varying(20),
+    email character varying(150),
+    joining_date date,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    photo_url text
+);
+
+
+ALTER TABLE public.faculty OWNER TO postgres;
+
+--
+-- TOC entry 226 (class 1259 OID 16834)
+-- Name: faculty_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.faculty ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.faculty_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 248 (class 1259 OID 17050)
+-- Name: gallery; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.gallery (
+    id bigint NOT NULL,
+    title character varying(200),
+    image_url text NOT NULL,
+    category character varying(100),
+    description text,
+    is_published boolean DEFAULT true NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.gallery OWNER TO postgres;
+
+--
+-- TOC entry 247 (class 1259 OID 17049)
+-- Name: gallery_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.gallery ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.gallery_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 246 (class 1259 OID 17033)
+-- Name: notices; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.notices (
+    id bigint NOT NULL,
+    title character varying(200) NOT NULL,
+    description text NOT NULL,
+    published_date date DEFAULT CURRENT_DATE NOT NULL,
+    is_published boolean DEFAULT true NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.notices OWNER TO postgres;
+
+--
+-- TOC entry 245 (class 1259 OID 17032)
+-- Name: notices_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.notices ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.notices_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 238 (class 1259 OID 16948)
+-- Name: student_payments; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.student_payments (
+    id bigint NOT NULL,
+    student_id bigint NOT NULL,
+    payment_type character varying(30) NOT NULL,
+    amount numeric(10,2) NOT NULL,
+    payment_date date DEFAULT CURRENT_DATE NOT NULL,
+    payment_month date,
+    remarks text,
+    CONSTRAINT valid_payment_amount CHECK ((amount > (0)::numeric)),
+    CONSTRAINT valid_payment_type CHECK (((payment_type)::text = ANY ((ARRAY['Admission Fee'::character varying, 'Monthly Fee'::character varying, 'Exam Fee'::character varying, 'Registration Fee'::character varying, 'Other'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.student_payments OWNER TO postgres;
+
+--
+-- TOC entry 237 (class 1259 OID 16947)
+-- Name: student_payments_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.student_payments ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.student_payments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 225 (class 1259 OID 16807)
+-- Name: students; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.students (
+    id bigint NOT NULL,
+    student_code character varying(30) NOT NULL,
+    class_id bigint NOT NULL,
+    batch_id bigint,
+    full_name character varying(150) NOT NULL,
+    gender character varying(20),
+    date_of_birth date,
+    student_phone character varying(20),
+    father_name character varying(150),
+    father_phone character varying(20),
+    mother_name character varying(150),
+    mother_phone character varying(20),
+    address text,
+    admission_date date DEFAULT CURRENT_DATE,
+    status character varying(20) DEFAULT 'Active'::character varying NOT NULL,
+    photo_url text,
+    CONSTRAINT students_status_check CHECK (((status)::text = ANY ((ARRAY['Active'::character varying, 'Inactive'::character varying, 'Completed'::character varying, 'Left'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.students OWNER TO postgres;
+
+--
+-- TOC entry 224 (class 1259 OID 16806)
+-- Name: students_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.students ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.students_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 229 (class 1259 OID 16845)
+-- Name: subjects; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.subjects (
+    id bigint NOT NULL,
+    subject_name character varying(100) NOT NULL,
+    subject_code character varying(30),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    class_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.subjects OWNER TO postgres;
+
+--
+-- TOC entry 228 (class 1259 OID 16844)
+-- Name: subjects_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.subjects ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.subjects_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 242 (class 1259 OID 16996)
+-- Name: teacher_salary; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.teacher_salary (
+    id bigint NOT NULL,
+    teacher_id bigint NOT NULL,
+    salary_month date NOT NULL,
+    amount numeric(10,2) NOT NULL,
+    payment_date date,
+    status character varying(20) DEFAULT 'Pending'::character varying NOT NULL,
+    remarks text,
+    CONSTRAINT valid_salary_amount CHECK ((amount > (0)::numeric)),
+    CONSTRAINT valid_salary_status CHECK (((status)::text = ANY ((ARRAY['Pending'::character varying, 'Paid'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.teacher_salary OWNER TO postgres;
+
+--
+-- TOC entry 241 (class 1259 OID 16995)
+-- Name: teacher_salary_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+ALTER TABLE public.teacher_salary ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.teacher_salary_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- TOC entry 230 (class 1259 OID 16856)
+-- Name: teacher_subjects; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.teacher_subjects (
+    teacher_id bigint NOT NULL,
+    subject_id bigint NOT NULL
+);
+
+
+ALTER TABLE public.teacher_subjects OWNER TO postgres;
+
+--
+-- TOC entry 219 (class 1259 OID 16766)
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    full_name character varying(100) NOT NULL,
+    role character varying(20) NOT NULL,
+    phone character varying(20),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT users_role_check CHECK (((role)::text = ANY ((ARRAY['admin'::character varying, 'teacher'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- TOC entry 5347 (class 0 OID 17019)
+-- Dependencies: 244
+-- Data for Name: achievements; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.achievements (id, title, description, image_url, achievement_date, is_published, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5353 (class 0 OID 17064)
+-- Dependencies: 250
+-- Data for Name: admission_info; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.admission_info (id, title, description, admission_fee, monthly_fee, duration, is_active, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5355 (class 0 OID 17078)
+-- Dependencies: 252
+-- Data for Name: admission_inquiries; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.admission_inquiries (id, student_name, student_phone, guardian_name, guardian_phone, class_id, message, status, created_at) FROM stdin;
+1	new	01877398800	new g	018784189648	7		New	2026-08-17 06:38:41.368199
+2	Siam Hossain	0180000000	Person 1	0180000000	9		New	2026-08-18 06:02:59.234619
+\.
+
+
+--
+-- TOC entry 5343 (class 0 OID 16969)
+-- Dependencies: 240
+-- Data for Name: attendance; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.attendance (id, student_id, batch_id, attendance_date, status, remarks) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5365 (class 0 OID 17166)
+-- Dependencies: 262
+-- Data for Name: auth_group; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.auth_group (id, name) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5367 (class 0 OID 17176)
+-- Dependencies: 264
+-- Data for Name: auth_group_permissions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.auth_group_permissions (id, group_id, permission_id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5363 (class 0 OID 17156)
+-- Dependencies: 260
+-- Data for Name: auth_permission; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
+1	Can add log entry	1	add_logentry
+2	Can change log entry	1	change_logentry
+3	Can delete log entry	1	delete_logentry
+4	Can view log entry	1	view_logentry
+5	Can add permission	2	add_permission
+6	Can change permission	2	change_permission
+7	Can delete permission	2	delete_permission
+8	Can view permission	2	view_permission
+9	Can add group	3	add_group
+10	Can change group	3	change_group
+11	Can delete group	3	delete_group
+12	Can view group	3	view_group
+13	Can add user	4	add_user
+14	Can change user	4	change_user
+15	Can delete user	4	delete_user
+16	Can view user	4	view_user
+17	Can add content type	5	add_contenttype
+18	Can change content type	5	change_contenttype
+19	Can delete content type	5	delete_contenttype
+20	Can view content type	5	view_contenttype
+21	Can add session	6	add_session
+22	Can change session	6	change_session
+23	Can delete session	6	delete_session
+24	Can view session	6	view_session
+\.
+
+
+--
+-- TOC entry 5369 (class 0 OID 17185)
+-- Dependencies: 266
+-- Data for Name: auth_user; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.auth_user (id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) FROM stdin;
+1	pbkdf2_sha256$1000000$UBiHmecc7qKnZU0DsmDzDk$CwZr1xvha6rKuA4D9AV+dg8asxxbfA9ZVYq1g4j7hJY=	2026-08-14 01:42:19.842798+06	t	rafsan			rhpronoy@gmail.com	t	t	2026-08-09 13:47:14.251354+06
+\.
+
+
+--
+-- TOC entry 5371 (class 0 OID 17204)
+-- Dependencies: 268
+-- Data for Name: auth_user_groups; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.auth_user_groups (id, user_id, group_id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5373 (class 0 OID 17213)
+-- Dependencies: 270
+-- Data for Name: auth_user_user_permissions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.auth_user_user_permissions (id, user_id, permission_id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5326 (class 0 OID 16790)
+-- Dependencies: 223
+-- Data for Name: batches; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.batches (id, class_id, batch_name, room, start_time, end_time) FROM stdin;
+5	9	Morning	101	10:00:00	12:00:00
+6	9	Afternoon	101	16:30:00	18:00:00
+7	9	Evening	101	19:00:00	20:30:00
+8	7	Morning	102	10:00:00	12:00:00
+9	7	Afternoon	102	16:30:00	18:00:00
+10	7	Evening	102	19:00:00	20:30:00
+11	8	Morning	103	10:00:00	12:00:00
+12	8	Afternoon	103	16:30:00	18:00:00
+13	8	Evening	103	19:00:00	20:30:00
+\.
+
+
+--
+-- TOC entry 5335 (class 0 OID 16874)
+-- Dependencies: 232
+-- Data for Name: class_schedule; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.class_schedule (id, batch_id, teacher_id, subject_id, day_of_week, start_time, end_time, room, class_id, status, notes) FROM stdin;
+2	5	3	9	Saturday	10:00:00	10:45:00	\N	9	Active	
+\.
+
+
+--
+-- TOC entry 5324 (class 0 OID 16779)
+-- Dependencies: 221
+-- Data for Name: classes; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.classes (id, class_name, academic_year) FROM stdin;
+9	Class 6	2026
+7	Class 7	2026
+8	Class 8	2026
+\.
+
+
+--
+-- TOC entry 5357 (class 0 OID 17099)
+-- Dependencies: 254
+-- Data for Name: contact_messages; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.contact_messages (id, name, phone, email, message, status, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5375 (class 0 OID 17274)
+-- Dependencies: 272
+-- Data for Name: django_admin_log; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.django_admin_log (id, action_time, object_id, object_repr, action_flag, change_message, content_type_id, user_id) FROM stdin;
+1	2026-08-09 14:40:34.264478+06	2	Faculty object (2)	1	[{"added": {}}]	8	1
+2	2026-08-09 14:40:41.79433+06	2	Faculty object (2)	2	[]	8	1
+3	2026-08-10 13:09:54.074957+06	1	AdmissionInfo object (1)	1	[{"added": {}}]	10	1
+4	2026-08-10 14:23:43.447492+06	1	Class object (1)	1	[{"added": {}}]	7	1
+5	2026-08-10 14:24:04.058709+06	2	Class object (2)	1	[{"added": {}}]	7	1
+6	2026-08-10 14:24:15.575253+06	1	Class object (1)	2	[{"changed": {"fields": ["Academic year"]}}]	7	1
+7	2026-08-10 14:24:31.055686+06	3	Class object (3)	1	[{"added": {}}]	7	1
+8	2026-08-10 14:26:46.740621+06	4	Class object (4)	1	[{"added": {}}, {"added": {"name": "Batch", "object": "Batch object (1)"}}]	7	1
+9	2026-08-10 14:29:49.372758+06	1	Student object (1)	1	[{"added": {}}]	9	1
+10	2026-08-11 12:38:12.997216+06	2	ContactMessage object (2)	3		16	1
+\.
+
+
+--
+-- TOC entry 5361 (class 0 OID 17144)
+-- Dependencies: 258
+-- Data for Name: django_content_type; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.django_content_type (id, app_label, model) FROM stdin;
+1	admin	logentry
+2	auth	permission
+3	auth	group
+4	auth	user
+5	contenttypes	contenttype
+6	sessions	session
+7	core	class
+8	core	faculty
+9	core	student
+10	core	admissioninfo
+11	core	achievement
+12	core	attendance
+13	core	teachersalary
+14	core	batch
+15	core	classschedule
+16	core	contactmessage
+17	core	studentpayment
+\.
+
+
+--
+-- TOC entry 5359 (class 0 OID 17132)
+-- Dependencies: 256
+-- Data for Name: django_migrations; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.django_migrations (id, app, name, applied) FROM stdin;
+1	contenttypes	0001_initial	2026-08-09 13:45:28.281441+06
+2	auth	0001_initial	2026-08-09 13:45:28.374564+06
+3	admin	0001_initial	2026-08-09 13:45:28.396137+06
+4	admin	0002_logentry_remove_auto_add	2026-08-09 13:45:28.404027+06
+5	admin	0003_logentry_add_action_flag_choices	2026-08-09 13:45:28.410063+06
+6	contenttypes	0002_remove_content_type_name	2026-08-09 13:45:28.42493+06
+7	auth	0002_alter_permission_name_max_length	2026-08-09 13:45:28.431933+06
+8	auth	0003_alter_user_email_max_length	2026-08-09 13:45:28.437968+06
+9	auth	0004_alter_user_username_opts	2026-08-09 13:45:28.443955+06
+10	auth	0005_alter_user_last_login_null	2026-08-09 13:45:28.451364+06
+11	auth	0006_require_contenttypes_0002	2026-08-09 13:45:28.453361+06
+12	auth	0007_alter_validators_add_error_messages	2026-08-09 13:45:28.457394+06
+13	auth	0008_alter_user_username_max_length	2026-08-09 13:45:28.467992+06
+14	auth	0009_alter_user_last_name_max_length	2026-08-09 13:45:28.476454+06
+15	auth	0010_alter_group_name_max_length	2026-08-09 13:45:28.484285+06
+16	auth	0011_update_proxy_permissions	2026-08-09 13:45:28.489315+06
+17	auth	0012_alter_user_first_name_max_length	2026-08-09 13:45:28.495296+06
+18	sessions	0001_initial	2026-08-09 13:45:28.508206+06
+\.
+
+
+--
+-- TOC entry 5376 (class 0 OID 17314)
+-- Dependencies: 273
+-- Data for Name: django_session; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.django_session (session_key, session_data, expire_date) FROM stdin;
+35mmne682z3hnxsob8fbytud9bx6ggdr	.eJxVjDsOwjAQBe_iGlnyOv6Ekp4zWLveNQ4gR4qTCnF3iJQC2jcz76USbmtNW5clTazOyqjT70aYH9J2wHdst1nnua3LRHpX9EG7vs4sz8vh_h1U7PVbSyiRfAGywYBhcFJ8dC4EcGYsJTIM5CMED5byIHYUJoemCKNjCUa9P9shOBg:1wt8v2:mhHqc4ZMQb0r5DS6_jNe9URT20wmLb1t4Xoz8YfFZ_M	2026-08-24 01:10:48.724214+06
+pc5fqudkxiqq0vcdy4rqfym2sutou23z	.eJxVjDsOwjAQBe_iGlnyOv6Ekp4zWLveNQ4gR4qTCnF3iJQC2jcz76USbmtNW5clTazOyqjT70aYH9J2wHdst1nnua3LRHpX9EG7vs4sz8vh_h1U7PVbSyiRfAGywYBhcFJ8dC4EcGYsJTIM5CMED5byIHYUJoemCKNjCUa9P9shOBg:1wu486:D9FlBQvb45_f8XRLWPfgjo56a9zhMDk_ns1YQCvkv8s	2026-08-26 14:16:06.670539+06
+wo83ipfjv7f364ffcap72hbmzh522g54	.eJxVjDsOwjAQBe_iGlnyOv6Ekp4zWLveNQ4gR4qTCnF3iJQC2jcz76USbmtNW5clTazOyqjT70aYH9J2wHdst1nnua3LRHpX9EG7vs4sz8vh_h1U7PVbSyiRfAGywYBhcFJ8dC4EcGYsJTIM5CMED5byIHYUJoemCKNjCUa9P9shOBg:1wubJj:7GVv0JmR3_vUUM7CpEeyf6znOkprSI_BSG6K1-Bk1ZI	2026-08-28 01:42:19.846079+06
+\.
+
+
+--
+-- TOC entry 5339 (class 0 OID 16919)
+-- Dependencies: 236
+-- Data for Name: exam_results; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.exam_results (id, exam_id, student_id, subject_id, marks, grade) FROM stdin;
+1	1	19	10	49.96	A+
+\.
+
+
+--
+-- TOC entry 5337 (class 0 OID 16904)
+-- Dependencies: 234
+-- Data for Name: exams; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.exams (id, class_id, exam_name, exam_date) FROM stdin;
+1	9	Test 1	2026-08-18
+\.
+
+
+--
+-- TOC entry 5330 (class 0 OID 16835)
+-- Dependencies: 227
+-- Data for Name: faculty; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.faculty (id, full_name, designation, phone, email, joining_date, created_at, photo_url) FROM stdin;
+4	Fahim Ahmed	Lecturer	01877398800	fahiim00@gmail.com	2026-02-02	2026-08-17 06:05:42.573068	\N
+3	Rafsan Hasan Pronay	Lecturer	01877398800	rafsanhasanpronoy00@gmail.com	2026-01-01	2026-08-17 05:57:36.178167	/media/faculty/ChatGPT%20Image%20Jul%2031%2C%202026%2C%2011_42_57%20PM.png
+\.
+
+
+--
+-- TOC entry 5351 (class 0 OID 17050)
+-- Dependencies: 248
+-- Data for Name: gallery; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.gallery (id, title, image_url, category, description, is_published, created_at) FROM stdin;
+1	Meet Our Mentor Rafsan Hasan Pronay	/media/gallery/770847381_122140357443156099_5827286874275868563_n.jpg	\N		t	2026-08-17 06:07:53.05691
+\.
+
+
+--
+-- TOC entry 5349 (class 0 OID 17033)
+-- Dependencies: 246
+-- Data for Name: notices; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.notices (id, title, description, published_date, is_published, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5341 (class 0 OID 16948)
+-- Dependencies: 238
+-- Data for Name: student_payments; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.student_payments (id, student_id, payment_type, amount, payment_date, payment_month, remarks) FROM stdin;
+2	31	Monthly Fee	1000.00	2026-08-17	2026-07-01	
+3	40	Monthly Fee	1000.00	2026-08-17	2026-07-01	
+\.
+
+
+--
+-- TOC entry 5328 (class 0 OID 16807)
+-- Dependencies: 225
+-- Data for Name: students; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.students (id, student_code, class_id, batch_id, full_name, gender, date_of_birth, student_phone, father_name, father_phone, mother_name, mother_phone, address, admission_date, status, photo_url) FROM stdin;
+5	PiC7B2001	7	9	Jarif Karim	Male	2011-09-09	01704332181	Mizanur Ahmed	01700133890	Momtaz Rahman	01786379402	House 45, Road 14, Banani, Dhaka	2026-03-17	Active	\N
+6	PiC8B3001	8	13	Sahil Islam	Male	2009-11-11	01751161559	Rafiqul Islam	01778161849	Farida Chowdhury	01731034131	House 25, Road 9, Rampura, Dhaka	2026-06-16	Active	\N
+7	PiC6B3001	9	7	Shadman Islam	Male	2010-12-18	01753419283	Kamal Ahmed	01764835030	Farida Ahmed	01741395376	House 57, Road 15, Uttara, Dhaka	2026-03-13	Active	\N
+8	PiC7B1001	7	8	Sakib Islam	Male	2009-11-30	01788496965	Jamal Rahman	01787101226	Rokeya Islam	01766978480	House 44, Road 4, Wari, Dhaka	2026-05-22	Active	\N
+9	PiC8B2001	8	12	Ayat Karim	Male	2011-01-18	01714627048	Kamal Chowdhury	01714893252	Momtaz Chowdhury	01709570154	House 16, Road 2, Mohammadpur, Dhaka	2026-05-30	Active	\N
+10	PiC6B3002	9	7	Sufiyan Ahmed	Male	2009-12-13	01771822782	Rafiqul Chowdhury	01796383465	Jasmine Chowdhury	01771331509	House 36, Road 8, Khilgaon, Dhaka	2026-03-02	Active	\N
+11	PiC7B3001	7	10	Sarthok Ahmed	Male	2010-01-07	01703105183	Rafiqul Karim	01773829973	Jasmine Ahmed	01731165667	House 56, Road 2, Wari, Dhaka	2026-06-21	Active	\N
+12	PiC8B1001	8	11	Nahian Ahmed	Male	2010-11-15	01751333872	Nurul Rahman	01747317810	Momtaz Islam	01713267736	House 58, Road 2, Uttara, Dhaka	2026-04-12	Active	\N
+13	PiC6B2001	9	6	Samin Rahman	Male	2011-04-05	01774687234	Jamal Islam	01798050097	Momtaz Chowdhury	01720812191	House 44, Road 8, Gulshan, Dhaka	2026-02-04	Inactive	\N
+14	PiC7B3002	7	10	Manaf Islam	Male	2010-05-19	01790916998	Anwar Hossain	01735346247	Farida Islam	01707991183	House 33, Road 9, Uttara, Dhaka	2026-04-04	Active	\N
+15	PiC8B3002	8	13	Orjon Islam	Male	2010-12-19	01742784980	Habibur Hossain	01712411824	Shirin Chowdhury	01735348740	House 6, Road 14, Bashundhara, Dhaka	2026-01-16	Active	\N
+16	PiC6B1001	9	5	Sowad Hossain	Male	2009-11-03	01724278680	Mohammad Islam	01728059826	Nasrin Islam	01745053315	House 50, Road 18, Gulshan, Dhaka	2026-06-12	Active	\N
+17	PiC7B2002	7	9	Taous Islam	Male	2009-07-30	01722602563	Rafiqul Rahman	01716073375	Shirin Rahman	01730365414	House 23, Road 17, Gulshan, Dhaka	2026-06-27	Inactive	\N
+18	PiC8B3003	8	13	Turab Hossain	Male	2011-12-04	01714294019	Nurul Hossain	01756981693	Shirin Islam	01760883561	House 43, Road 11, Khilgaon, Dhaka	2026-03-26	Active	\N
+19	PiC6B3003	9	7	Sayeef Karim	Male	2011-02-28	01784656482	Jamal Ahmed	01762994680	Shirin Hossain	01736995777	House 44, Road 7, Badda, Dhaka	2026-05-06	Active	\N
+20	PiC7B1002	7	8	Rafid Karim	Male	2011-10-07	01748951343	Jamal Rahman	01700379176	Rokeya Rahman	01767632016	House 15, Road 6, Farmgate, Dhaka	2026-05-17	Active	\N
+22	PiC6B3004	9	7	Zayan Ahmed	Male	2011-08-13	01723623166	Anwar Chowdhury	01776036690	Rokeya Ahmed	01770546688	House 52, Road 20, Mohammadpur, Dhaka	2026-05-09	Active	\N
+23	PiC7B3003	7	10	Rayyan Hossain	Male	2010-10-12	01770656272	Mizanur Chowdhury	01706990162	Jasmine Rahman	01704653755	House 49, Road 13, Bashundhara, Dhaka	2026-07-16	Active	\N
+24	PiC8B1002	8	11	Arham Hossain	Male	2009-08-30	01717080531	Abdul Islam	01733092327	Salma Chowdhury	01737452991	House 50, Road 6, Bashundhara, Dhaka	2026-02-01	Inactive	\N
+25	PiC6B2002	9	6	Nabil Ahmed	Male	2011-02-16	01796631931	Rafiqul Karim	01791905865	Salma Chowdhury	01750671657	House 46, Road 5, Gulshan, Dhaka	2026-02-19	Inactive	\N
+26	PiC7B3004	7	10	Tanvir Karim	Male	2011-03-31	01798776945	Jamal Islam	01747379965	Rashida Ahmed	01752735454	House 57, Road 20, Farmgate, Dhaka	2026-03-16	Inactive	\N
+27	PiC8B3004	8	13	Rakib Ahmed	Male	2010-07-21	01731367837	Shahid Ahmed	01701436349	Farida Ahmed	01788568557	House 18, Road 10, Bashundhara, Dhaka	2026-03-05	Active	\N
+28	PiC6B1002	9	5	Fahim Karim	Male	2011-06-18	01751823374	Mizanur Chowdhury	01794134352	Shirin Islam	01782400842	House 41, Road 16, Dhanmondi, Dhaka	2026-01-08	Inactive	\N
+29	PiC7B2003	7	9	Imran Hossain	Male	2010-09-08	01777520471	Mohammad Ahmed	01771902294	Salma Rahman	01718699938	House 25, Road 15, Rampura, Dhaka	2026-03-22	Inactive	\N
+30	PiC8B3005	8	13	Farhan Rahman	Male	2011-02-23	01799091334	Mohammad Rahman	01732812067	Rokeya Ahmed	01740344713	House 60, Road 9, Wari, Dhaka	2026-06-04	Active	\N
+31	PiC6B3005	9	7	Zawad Rahman	Male	2011-09-06	01783242102	Rafiqul Chowdhury	01794717464	Momtaz Chowdhury	01777190659	House 17, Road 1, Dhanmondi, Dhaka	2026-03-04	Inactive	\N
+32	PiC7B1003	7	8	Ashfaq Chowdhury	Male	2011-12-11	01749027874	Kamal Chowdhury	01767175655	Salma Rahman	01756746807	House 6, Road 11, Bashundhara, Dhaka	2026-03-28	Active	\N
+33	PiC8B2003	8	12	Mahin Rahman	Male	2009-07-30	01780876038	Anwar Chowdhury	01777034824	Jasmine Karim	01771093248	House 1, Road 18, Gulshan, Dhaka	2026-01-28	Active	\N
+34	PiC6B3006	9	7	Rafsan Ahmed	Male	2010-09-16	01712748467	Shahid Rahman	01778263982	Salma Hossain	01765840449	House 38, Road 16, Uttara, Dhaka	2026-04-29	Inactive	\N
+35	PiC7B3005	7	10	Iftekhar Rahman	Male	2011-01-13	01758867533	Mizanur Ahmed	01736057662	Jasmine Islam	01728951718	House 59, Road 15, Mirpur, Dhaka	2026-07-08	Active	\N
+36	PiC8B1003	8	11	Nafis Rahman	Male	2009-07-24	01721745961	Anwar Karim	01786578091	Ruma Karim	01743161172	House 45, Road 10, Mirpur, Dhaka	2026-01-16	Active	\N
+37	PiC6B2003	9	6	Shanto Ahmed	Male	2011-03-07	01755623869	Kamal Rahman	01721969379	Nasrin Rahman	01774740748	House 11, Road 3, Rampura, Dhaka	2026-04-03	Inactive	\N
+38	PiC7B3006	7	10	Rizvi Hossain	Male	2010-03-18	01764743671	Jamal Ahmed	01795944064	Rashida Chowdhury	01709743953	House 41, Road 7, Khilgaon, Dhaka	2026-03-10	Active	\N
+39	PiC8B3006	8	13	Emon Karim	Male	2011-09-24	01704709521	Rafiqul Hossain	01762328588	Shirin Rahman	01747451712	House 49, Road 8, Wari, Dhaka	2026-07-09	Active	\N
+40	PiC6B1003	9	5	Anas Chowdhury	Male	2010-12-23	01716048175	Rafiqul Chowdhury	01765137098	Farida Chowdhury	01731746120	House 3, Road 10, Rampura, Dhaka	2026-02-03	Active	\N
+41	PiC7B3007	7	10	Hamza Islam	Male	2010-06-30	01726758692	Nurul Karim	01717964053	Jasmine Ahmed	01735158506	House 18, Road 7, Dhanmondi, Dhaka	2026-05-01	Active	\N
+42	PiC8B3007	8	13	Yeasin Karim	Male	2011-05-29	01790053293	Mohammad Chowdhury	01739335290	Shirin Rahman	01728421020	House 23, Road 8, Khilgaon, Dhaka	2026-03-28	Active	\N
+43	PiC6B3007	9	7	Wasif Islam	Male	2011-04-05	01702681177	Anwar Chowdhury	01791783908	Shirin Ahmed	01700766177	House 5, Road 3, Banani, Dhaka	2026-06-09	Active	\N
+44	PiC7B1004	7	8	Musfiq Ahmed	Male	2011-08-25	01749985698	Rafiqul Ahmed	01789611836	Jasmine Rahman	01765766156	House 21, Road 9, Banani, Dhaka	2026-02-13	Active	\N
+45	PiC8B2004	8	12	Rudro Ahmed	Male	2011-09-30	01711615280	Mizanur Chowdhury	01785165604	Rokeya Hossain	01751983273	House 55, Road 4, Banani, Dhaka	2026-05-27	Active	\N
+46	PiC6B3008	9	7	Shovon Ahmed	Male	2009-11-12	01749368998	Abdul Chowdhury	01740244550	Nasrin Rahman	01796120183	House 25, Road 14, Rampura, Dhaka	2026-04-02	Active	\N
+47	PiC7B3008	7	10	Tahmid Hossain	Male	2011-02-16	01759910229	Abdul Karim	01714767976	Shirin Rahman	01781561497	House 34, Road 10, Mirpur, Dhaka	2026-03-02	Active	\N
+48	PiC8B1004	8	11	Arif Chowdhury	Male	2011-11-06	01703432445	Mohammad Islam	01776226838	Momtaz Karim	01751606071	House 56, Road 11, Khilgaon, Dhaka	2026-04-24	Inactive	\N
+49	PiC6B2004	9	6	Naeem Rahman	Male	2010-01-05	01764160529	Shahid Karim	01751613696	Momtaz Islam	01764535218	House 41, Road 4, Badda, Dhaka	2026-05-15	Active	\N
+50	PiC7B3009	7	10	Rahat Hossain	Male	2011-01-07	01723124329	Kamal Karim	01712779979	Rokeya Hossain	01752717744	House 38, Road 2, Banani, Dhaka	2026-05-14	Active	\N
+51	PiC8B3008	8	13	Fardin Hossain	Male	2010-09-16	01770054119	Mizanur Chowdhury	01767980793	Farida Chowdhury	01778207151	House 33, Road 6, Mirpur, Dhaka	2026-03-09	Active	\N
+52	PiC6B1004	9	5	Anik Rahman	Male	2010-07-14	01789255466	Anwar Karim	01790515186	Shirin Hossain	01792519254	House 42, Road 13, Uttara, Dhaka	2026-06-06	Active	\N
+53	PiC7B2004	7	9	Prottoy Hossain	Male	2010-06-08	01765281685	Abdul Hossain	01742357332	Nasrin Islam	01741888059	House 9, Road 20, Gulshan, Dhaka	2026-02-13	Active	\N
+54	PiC8B3009	8	13	Sabbir Islam	Male	2009-09-02	01792706537	Mizanur Hossain	01773834735	Rokeya Ahmed	01774688623	House 52, Road 20, Uttara, Dhaka	2026-03-10	Active	\N
+21	PiC8B2002	8	12	Adib Ahmed	Male	2010-06-10	01731727889	Anwar Ahmed	01798687277	Shirin Rahman	01748734714	House 16, Road 9, Banani, Dhaka	2026-03-27	Inactive	/media/students/IMG_3467.jpeg
+\.
+
+
+--
+-- TOC entry 5332 (class 0 OID 16845)
+-- Dependencies: 229
+-- Data for Name: subjects; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.subjects (id, subject_name, subject_code, created_at, class_id) FROM stdin;
+9	English	Eng-class6	2026-08-17 06:08:46.806665	9
+10	Bangla	Ban-class6	2026-08-17 06:08:57.05705	9
+11	Science	Sci-class6	2026-08-17 06:09:11.805942	9
+12	Math	Mat-class6	2026-08-17 06:09:21.08039	9
+13	English	Eng-class7	2026-08-17 06:09:30.142639	7
+14	Bangla	Ban-class7	2026-08-17 06:09:36.837001	7
+15	Science	Sci-class7	2026-08-17 06:09:43.158266	7
+16	Math	Mat-class7	2026-08-17 06:09:53.22657	7
+17	English	Eng-class8	2026-08-17 06:10:00.134699	8
+18	Bangla	Ban-class8	2026-08-17 06:10:06.931973	8
+19	Math	Mat-class8	2026-08-17 06:10:12.858402	8
+20	Science	Sci-class8	2026-08-17 06:10:24.660373	8
+\.
+
+
+--
+-- TOC entry 5345 (class 0 OID 16996)
+-- Dependencies: 242
+-- Data for Name: teacher_salary; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.teacher_salary (id, teacher_id, salary_month, amount, payment_date, status, remarks) FROM stdin;
+1	3	2026-07-01	15000.00	2026-08-18	Paid	done
+\.
+
+
+--
+-- TOC entry 5333 (class 0 OID 16856)
+-- Dependencies: 230
+-- Data for Name: teacher_subjects; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.teacher_subjects (teacher_id, subject_id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5322 (class 0 OID 16766)
+-- Dependencies: 219
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.users (id, full_name, role, phone, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5382 (class 0 OID 0)
+-- Dependencies: 243
+-- Name: achievements_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.achievements_id_seq', 1, false);
+
+
+--
+-- TOC entry 5383 (class 0 OID 0)
+-- Dependencies: 249
+-- Name: admission_info_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.admission_info_id_seq', 1, true);
+
+
+--
+-- TOC entry 5384 (class 0 OID 0)
+-- Dependencies: 251
+-- Name: admission_inquiries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.admission_inquiries_id_seq', 2, true);
+
+
+--
+-- TOC entry 5385 (class 0 OID 0)
+-- Dependencies: 239
+-- Name: attendance_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.attendance_id_seq', 1, false);
+
+
+--
+-- TOC entry 5386 (class 0 OID 0)
+-- Dependencies: 261
+-- Name: auth_group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.auth_group_id_seq', 1, false);
+
+
+--
+-- TOC entry 5387 (class 0 OID 0)
+-- Dependencies: 263
+-- Name: auth_group_permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.auth_group_permissions_id_seq', 1, false);
+
+
+--
+-- TOC entry 5388 (class 0 OID 0)
+-- Dependencies: 259
+-- Name: auth_permission_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.auth_permission_id_seq', 24, true);
+
+
+--
+-- TOC entry 5389 (class 0 OID 0)
+-- Dependencies: 267
+-- Name: auth_user_groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.auth_user_groups_id_seq', 1, false);
+
+
+--
+-- TOC entry 5390 (class 0 OID 0)
+-- Dependencies: 265
+-- Name: auth_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.auth_user_id_seq', 1, true);
+
+
+--
+-- TOC entry 5391 (class 0 OID 0)
+-- Dependencies: 269
+-- Name: auth_user_user_permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
+
+
+--
+-- TOC entry 5392 (class 0 OID 0)
+-- Dependencies: 222
+-- Name: batches_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.batches_id_seq', 13, true);
+
+
+--
+-- TOC entry 5393 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: class_schedule_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.class_schedule_id_seq', 2, true);
+
+
+--
+-- TOC entry 5394 (class 0 OID 0)
+-- Dependencies: 220
+-- Name: classes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.classes_id_seq', 9, true);
+
+
+--
+-- TOC entry 5395 (class 0 OID 0)
+-- Dependencies: 253
+-- Name: contact_messages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.contact_messages_id_seq', 2, true);
+
+
+--
+-- TOC entry 5396 (class 0 OID 0)
+-- Dependencies: 271
+-- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.django_admin_log_id_seq', 10, true);
+
+
+--
+-- TOC entry 5397 (class 0 OID 0)
+-- Dependencies: 257
+-- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.django_content_type_id_seq', 17, true);
+
+
+--
+-- TOC entry 5398 (class 0 OID 0)
+-- Dependencies: 255
+-- Name: django_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.django_migrations_id_seq', 18, true);
+
+
+--
+-- TOC entry 5399 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: exam_results_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.exam_results_id_seq', 1, true);
+
+
+--
+-- TOC entry 5400 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: exams_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.exams_id_seq', 1, true);
+
+
+--
+-- TOC entry 5401 (class 0 OID 0)
+-- Dependencies: 226
+-- Name: faculty_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.faculty_id_seq', 4, true);
+
+
+--
+-- TOC entry 5402 (class 0 OID 0)
+-- Dependencies: 247
+-- Name: gallery_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.gallery_id_seq', 1, true);
+
+
+--
+-- TOC entry 5403 (class 0 OID 0)
+-- Dependencies: 245
+-- Name: notices_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.notices_id_seq', 1, false);
+
+
+--
+-- TOC entry 5404 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: student_payments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.student_payments_id_seq', 3, true);
+
+
+--
+-- TOC entry 5405 (class 0 OID 0)
+-- Dependencies: 224
+-- Name: students_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.students_id_seq', 54, true);
+
+
+--
+-- TOC entry 5406 (class 0 OID 0)
+-- Dependencies: 228
+-- Name: subjects_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.subjects_id_seq', 20, true);
+
+
+--
+-- TOC entry 5407 (class 0 OID 0)
+-- Dependencies: 241
+-- Name: teacher_salary_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.teacher_salary_id_seq', 1, true);
+
+
+--
+-- TOC entry 5087 (class 2606 OID 17031)
+-- Name: achievements achievements_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.achievements
+    ADD CONSTRAINT achievements_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5093 (class 2606 OID 17076)
+-- Name: admission_info admission_info_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.admission_info
+    ADD CONSTRAINT admission_info_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5095 (class 2606 OID 17092)
+-- Name: admission_inquiries admission_inquiries_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.admission_inquiries
+    ADD CONSTRAINT admission_inquiries_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5076 (class 2606 OID 16982)
+-- Name: attendance attendance_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.attendance
+    ADD CONSTRAINT attendance_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5113 (class 2606 OID 17310)
+-- Name: auth_group auth_group_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_group
+    ADD CONSTRAINT auth_group_name_key UNIQUE (name);
+
+
+--
+-- TOC entry 5118 (class 2606 OID 17231)
+-- Name: auth_group_permissions auth_group_permissions_group_id_permission_id_0cd325b0_uniq; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_group_permissions
+    ADD CONSTRAINT auth_group_permissions_group_id_permission_id_0cd325b0_uniq UNIQUE (group_id, permission_id);
+
+
+--
+-- TOC entry 5121 (class 2606 OID 17183)
+-- Name: auth_group_permissions auth_group_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_group_permissions
+    ADD CONSTRAINT auth_group_permissions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5115 (class 2606 OID 17172)
+-- Name: auth_group auth_group_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_group
+    ADD CONSTRAINT auth_group_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5108 (class 2606 OID 17222)
+-- Name: auth_permission auth_permission_content_type_id_codename_01ab375a_uniq; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_permission
+    ADD CONSTRAINT auth_permission_content_type_id_codename_01ab375a_uniq UNIQUE (content_type_id, codename);
+
+
+--
+-- TOC entry 5110 (class 2606 OID 17164)
+-- Name: auth_permission auth_permission_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_permission
+    ADD CONSTRAINT auth_permission_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5129 (class 2606 OID 17211)
+-- Name: auth_user_groups auth_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_user_groups
+    ADD CONSTRAINT auth_user_groups_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5132 (class 2606 OID 17246)
+-- Name: auth_user_groups auth_user_groups_user_id_group_id_94350c0c_uniq; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_user_groups
+    ADD CONSTRAINT auth_user_groups_user_id_group_id_94350c0c_uniq UNIQUE (user_id, group_id);
+
+
+--
+-- TOC entry 5123 (class 2606 OID 17200)
+-- Name: auth_user auth_user_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_user
+    ADD CONSTRAINT auth_user_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5135 (class 2606 OID 17220)
+-- Name: auth_user_user_permissions auth_user_user_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_user_user_permissions
+    ADD CONSTRAINT auth_user_user_permissions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5138 (class 2606 OID 17260)
+-- Name: auth_user_user_permissions auth_user_user_permissions_user_id_permission_id_14a6b632_uniq; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_user_user_permissions
+    ADD CONSTRAINT auth_user_user_permissions_user_id_permission_id_14a6b632_uniq UNIQUE (user_id, permission_id);
+
+
+--
+-- TOC entry 5126 (class 2606 OID 17303)
+-- Name: auth_user auth_user_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_user
+    ADD CONSTRAINT auth_user_username_key UNIQUE (username);
+
+
+--
+-- TOC entry 5038 (class 2606 OID 16798)
+-- Name: batches batches_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.batches
+    ADD CONSTRAINT batches_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5059 (class 2606 OID 16887)
+-- Name: class_schedule class_schedule_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.class_schedule
+    ADD CONSTRAINT class_schedule_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5034 (class 2606 OID 16786)
+-- Name: classes classes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.classes
+    ADD CONSTRAINT classes_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5098 (class 2606 OID 17113)
+-- Name: contact_messages contact_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.contact_messages
+    ADD CONSTRAINT contact_messages_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5141 (class 2606 OID 17287)
+-- Name: django_admin_log django_admin_log_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.django_admin_log
+    ADD CONSTRAINT django_admin_log_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5103 (class 2606 OID 17154)
+-- Name: django_content_type django_content_type_app_label_model_76bd3d3b_uniq; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.django_content_type
+    ADD CONSTRAINT django_content_type_app_label_model_76bd3d3b_uniq UNIQUE (app_label, model);
+
+
+--
+-- TOC entry 5105 (class 2606 OID 17152)
+-- Name: django_content_type django_content_type_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.django_content_type
+    ADD CONSTRAINT django_content_type_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5101 (class 2606 OID 17142)
+-- Name: django_migrations django_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.django_migrations
+    ADD CONSTRAINT django_migrations_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5145 (class 2606 OID 17323)
+-- Name: django_session django_session_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.django_session
+    ADD CONSTRAINT django_session_pkey PRIMARY KEY (session_key);
+
+
+--
+-- TOC entry 5066 (class 2606 OID 16929)
+-- Name: exam_results exam_results_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_results
+    ADD CONSTRAINT exam_results_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5064 (class 2606 OID 16912)
+-- Name: exams exams_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exams
+    ADD CONSTRAINT exams_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5050 (class 2606 OID 16843)
+-- Name: faculty faculty_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.faculty
+    ADD CONSTRAINT faculty_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5091 (class 2606 OID 17062)
+-- Name: gallery gallery_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.gallery
+    ADD CONSTRAINT gallery_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5089 (class 2606 OID 17048)
+-- Name: notices notices_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.notices
+    ADD CONSTRAINT notices_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5074 (class 2606 OID 16962)
+-- Name: student_payments student_payments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.student_payments
+    ADD CONSTRAINT student_payments_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5046 (class 2606 OID 16821)
+-- Name: students students_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.students
+    ADD CONSTRAINT students_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5048 (class 2606 OID 16823)
+-- Name: students students_student_code_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.students
+    ADD CONSTRAINT students_student_code_key UNIQUE (student_code);
+
+
+--
+-- TOC entry 5052 (class 2606 OID 16853)
+-- Name: subjects subjects_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subjects
+    ADD CONSTRAINT subjects_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5054 (class 2606 OID 16855)
+-- Name: subjects subjects_subject_code_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subjects
+    ADD CONSTRAINT subjects_subject_code_key UNIQUE (subject_code);
+
+
+--
+-- TOC entry 5083 (class 2606 OID 17010)
+-- Name: teacher_salary teacher_salary_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_salary
+    ADD CONSTRAINT teacher_salary_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5057 (class 2606 OID 16862)
+-- Name: teacher_subjects teacher_subjects_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_subjects
+    ADD CONSTRAINT teacher_subjects_pkey PRIMARY KEY (teacher_id, subject_id);
+
+
+--
+-- TOC entry 5041 (class 2606 OID 16800)
+-- Name: batches unique_batch_per_class; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.batches
+    ADD CONSTRAINT unique_batch_per_class UNIQUE (class_id, batch_name);
+
+
+--
+-- TOC entry 5036 (class 2606 OID 16788)
+-- Name: classes unique_class_year; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.classes
+    ADD CONSTRAINT unique_class_year UNIQUE (class_name, academic_year);
+
+
+--
+-- TOC entry 5071 (class 2606 OID 16931)
+-- Name: exam_results unique_exam_student_subject; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_results
+    ADD CONSTRAINT unique_exam_student_subject UNIQUE (exam_id, student_id, subject_id);
+
+
+--
+-- TOC entry 5080 (class 2606 OID 16984)
+-- Name: attendance unique_student_attendance; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.attendance
+    ADD CONSTRAINT unique_student_attendance UNIQUE (student_id, attendance_date);
+
+
+--
+-- TOC entry 5085 (class 2606 OID 17012)
+-- Name: teacher_salary unique_teacher_salary_month; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_salary
+    ADD CONSTRAINT unique_teacher_salary_month UNIQUE (teacher_id, salary_month);
+
+
+--
+-- TOC entry 5032 (class 2606 OID 16777)
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5111 (class 1259 OID 17311)
+-- Name: auth_group_name_a6ea08ec_like; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX auth_group_name_a6ea08ec_like ON public.auth_group USING btree (name varchar_pattern_ops);
+
+
+--
+-- TOC entry 5116 (class 1259 OID 17242)
+-- Name: auth_group_permissions_group_id_b120cbf9; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX auth_group_permissions_group_id_b120cbf9 ON public.auth_group_permissions USING btree (group_id);
+
+
+--
+-- TOC entry 5119 (class 1259 OID 17243)
+-- Name: auth_group_permissions_permission_id_84c5c92e; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX auth_group_permissions_permission_id_84c5c92e ON public.auth_group_permissions USING btree (permission_id);
+
+
+--
+-- TOC entry 5106 (class 1259 OID 17228)
+-- Name: auth_permission_content_type_id_2f476e4b; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX auth_permission_content_type_id_2f476e4b ON public.auth_permission USING btree (content_type_id);
+
+
+--
+-- TOC entry 5127 (class 1259 OID 17258)
+-- Name: auth_user_groups_group_id_97559544; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX auth_user_groups_group_id_97559544 ON public.auth_user_groups USING btree (group_id);
+
+
+--
+-- TOC entry 5130 (class 1259 OID 17257)
+-- Name: auth_user_groups_user_id_6a12ed8b; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX auth_user_groups_user_id_6a12ed8b ON public.auth_user_groups USING btree (user_id);
+
+
+--
+-- TOC entry 5133 (class 1259 OID 17272)
+-- Name: auth_user_user_permissions_permission_id_1fbb5f2c; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX auth_user_user_permissions_permission_id_1fbb5f2c ON public.auth_user_user_permissions USING btree (permission_id);
+
+
+--
+-- TOC entry 5136 (class 1259 OID 17271)
+-- Name: auth_user_user_permissions_user_id_a95ead1b; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX auth_user_user_permissions_user_id_a95ead1b ON public.auth_user_user_permissions USING btree (user_id);
+
+
+--
+-- TOC entry 5124 (class 1259 OID 17304)
+-- Name: auth_user_username_6821ab7c_like; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX auth_user_username_6821ab7c_like ON public.auth_user USING btree (username varchar_pattern_ops);
+
+
+--
+-- TOC entry 5139 (class 1259 OID 17298)
+-- Name: django_admin_log_content_type_id_c4bce8eb; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX django_admin_log_content_type_id_c4bce8eb ON public.django_admin_log USING btree (content_type_id);
+
+
+--
+-- TOC entry 5142 (class 1259 OID 17299)
+-- Name: django_admin_log_user_id_c564eba6; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX django_admin_log_user_id_c564eba6 ON public.django_admin_log USING btree (user_id);
+
+
+--
+-- TOC entry 5143 (class 1259 OID 17325)
+-- Name: django_session_expire_date_a5c62663; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX django_session_expire_date_a5c62663 ON public.django_session USING btree (expire_date);
+
+
+--
+-- TOC entry 5146 (class 1259 OID 17324)
+-- Name: django_session_session_key_c0390e0f_like; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX django_session_session_key_c0390e0f_like ON public.django_session USING btree (session_key varchar_pattern_ops);
+
+
+--
+-- TOC entry 5096 (class 1259 OID 17128)
+-- Name: idx_admission_inquiries_status; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_admission_inquiries_status ON public.admission_inquiries USING btree (status);
+
+
+--
+-- TOC entry 5077 (class 1259 OID 17126)
+-- Name: idx_attendance_date; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_attendance_date ON public.attendance USING btree (attendance_date);
+
+
+--
+-- TOC entry 5078 (class 1259 OID 17125)
+-- Name: idx_attendance_student_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_attendance_student_id ON public.attendance USING btree (student_id);
+
+
+--
+-- TOC entry 5039 (class 1259 OID 17117)
+-- Name: idx_batches_class_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_batches_class_id ON public.batches USING btree (class_id);
+
+
+--
+-- TOC entry 5099 (class 1259 OID 17129)
+-- Name: idx_contact_messages_status; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_contact_messages_status ON public.contact_messages USING btree (status);
+
+
+--
+-- TOC entry 5067 (class 1259 OID 17121)
+-- Name: idx_exam_results_exam_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_exam_results_exam_id ON public.exam_results USING btree (exam_id);
+
+
+--
+-- TOC entry 5068 (class 1259 OID 17122)
+-- Name: idx_exam_results_student_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_exam_results_student_id ON public.exam_results USING btree (student_id);
+
+
+--
+-- TOC entry 5069 (class 1259 OID 17123)
+-- Name: idx_exam_results_subject_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_exam_results_subject_id ON public.exam_results USING btree (subject_id);
+
+
+--
+-- TOC entry 5060 (class 1259 OID 17118)
+-- Name: idx_schedule_batch_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_schedule_batch_id ON public.class_schedule USING btree (batch_id);
+
+
+--
+-- TOC entry 5061 (class 1259 OID 17120)
+-- Name: idx_schedule_subject_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_schedule_subject_id ON public.class_schedule USING btree (subject_id);
+
+
+--
+-- TOC entry 5062 (class 1259 OID 17119)
+-- Name: idx_schedule_teacher_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_schedule_teacher_id ON public.class_schedule USING btree (teacher_id);
+
+
+--
+-- TOC entry 5072 (class 1259 OID 17124)
+-- Name: idx_student_payments_student_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_student_payments_student_id ON public.student_payments USING btree (student_id);
+
+
+--
+-- TOC entry 5042 (class 1259 OID 17115)
+-- Name: idx_students_batch_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_students_batch_id ON public.students USING btree (batch_id);
+
+
+--
+-- TOC entry 5043 (class 1259 OID 17114)
+-- Name: idx_students_class_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_students_class_id ON public.students USING btree (class_id);
+
+
+--
+-- TOC entry 5044 (class 1259 OID 17116)
+-- Name: idx_students_name; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_students_name ON public.students USING btree (full_name);
+
+
+--
+-- TOC entry 5081 (class 1259 OID 17127)
+-- Name: idx_teacher_salary_teacher_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_teacher_salary_teacher_id ON public.teacher_salary USING btree (teacher_id);
+
+
+--
+-- TOC entry 5055 (class 1259 OID 17332)
+-- Name: subjects_subject_name_class_id_uniq; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX subjects_subject_name_class_id_uniq ON public.subjects USING btree (subject_name, class_id);
+
+
+--
+-- TOC entry 5165 (class 2606 OID 17093)
+-- Name: admission_inquiries admission_inquiries_class_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.admission_inquiries
+    ADD CONSTRAINT admission_inquiries_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 5162 (class 2606 OID 16990)
+-- Name: attendance attendance_batch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.attendance
+    ADD CONSTRAINT attendance_batch_id_fkey FOREIGN KEY (batch_id) REFERENCES public.batches(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5163 (class 2606 OID 16985)
+-- Name: attendance attendance_student_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.attendance
+    ADD CONSTRAINT attendance_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5167 (class 2606 OID 17237)
+-- Name: auth_group_permissions auth_group_permissio_permission_id_84c5c92e_fk_auth_perm; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_group_permissions
+    ADD CONSTRAINT auth_group_permissio_permission_id_84c5c92e_fk_auth_perm FOREIGN KEY (permission_id) REFERENCES public.auth_permission(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- TOC entry 5168 (class 2606 OID 17232)
+-- Name: auth_group_permissions auth_group_permissions_group_id_b120cbf9_fk_auth_group_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_group_permissions
+    ADD CONSTRAINT auth_group_permissions_group_id_b120cbf9_fk_auth_group_id FOREIGN KEY (group_id) REFERENCES public.auth_group(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- TOC entry 5166 (class 2606 OID 17223)
+-- Name: auth_permission auth_permission_content_type_id_2f476e4b_fk_django_co; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_permission
+    ADD CONSTRAINT auth_permission_content_type_id_2f476e4b_fk_django_co FOREIGN KEY (content_type_id) REFERENCES public.django_content_type(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- TOC entry 5169 (class 2606 OID 17252)
+-- Name: auth_user_groups auth_user_groups_group_id_97559544_fk_auth_group_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_user_groups
+    ADD CONSTRAINT auth_user_groups_group_id_97559544_fk_auth_group_id FOREIGN KEY (group_id) REFERENCES public.auth_group(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- TOC entry 5170 (class 2606 OID 17247)
+-- Name: auth_user_groups auth_user_groups_user_id_6a12ed8b_fk_auth_user_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_user_groups
+    ADD CONSTRAINT auth_user_groups_user_id_6a12ed8b_fk_auth_user_id FOREIGN KEY (user_id) REFERENCES public.auth_user(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- TOC entry 5171 (class 2606 OID 17266)
+-- Name: auth_user_user_permissions auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_user_user_permissions
+    ADD CONSTRAINT auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm FOREIGN KEY (permission_id) REFERENCES public.auth_permission(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- TOC entry 5172 (class 2606 OID 17261)
+-- Name: auth_user_user_permissions auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.auth_user_user_permissions
+    ADD CONSTRAINT auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id FOREIGN KEY (user_id) REFERENCES public.auth_user(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- TOC entry 5147 (class 2606 OID 16801)
+-- Name: batches batches_class_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.batches
+    ADD CONSTRAINT batches_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5153 (class 2606 OID 16888)
+-- Name: class_schedule class_schedule_batch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.class_schedule
+    ADD CONSTRAINT class_schedule_batch_id_fkey FOREIGN KEY (batch_id) REFERENCES public.batches(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5154 (class 2606 OID 17333)
+-- Name: class_schedule class_schedule_class_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.class_schedule
+    ADD CONSTRAINT class_schedule_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id);
+
+
+--
+-- TOC entry 5155 (class 2606 OID 16898)
+-- Name: class_schedule class_schedule_subject_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.class_schedule
+    ADD CONSTRAINT class_schedule_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES public.subjects(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 5156 (class 2606 OID 16893)
+-- Name: class_schedule class_schedule_teacher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.class_schedule
+    ADD CONSTRAINT class_schedule_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.faculty(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 5173 (class 2606 OID 17288)
+-- Name: django_admin_log django_admin_log_content_type_id_c4bce8eb_fk_django_co; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.django_admin_log
+    ADD CONSTRAINT django_admin_log_content_type_id_c4bce8eb_fk_django_co FOREIGN KEY (content_type_id) REFERENCES public.django_content_type(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- TOC entry 5174 (class 2606 OID 17293)
+-- Name: django_admin_log django_admin_log_user_id_c564eba6_fk_auth_user_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.django_admin_log
+    ADD CONSTRAINT django_admin_log_user_id_c564eba6_fk_auth_user_id FOREIGN KEY (user_id) REFERENCES public.auth_user(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- TOC entry 5158 (class 2606 OID 16932)
+-- Name: exam_results exam_results_exam_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_results
+    ADD CONSTRAINT exam_results_exam_id_fkey FOREIGN KEY (exam_id) REFERENCES public.exams(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5159 (class 2606 OID 16937)
+-- Name: exam_results exam_results_student_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_results
+    ADD CONSTRAINT exam_results_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5160 (class 2606 OID 16942)
+-- Name: exam_results exam_results_subject_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exam_results
+    ADD CONSTRAINT exam_results_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES public.subjects(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 5157 (class 2606 OID 16913)
+-- Name: exams exams_class_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exams
+    ADD CONSTRAINT exams_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5161 (class 2606 OID 16963)
+-- Name: student_payments student_payments_student_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.student_payments
+    ADD CONSTRAINT student_payments_student_id_fkey FOREIGN KEY (student_id) REFERENCES public.students(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5148 (class 2606 OID 16829)
+-- Name: students students_batch_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.students
+    ADD CONSTRAINT students_batch_id_fkey FOREIGN KEY (batch_id) REFERENCES public.batches(id) ON DELETE SET NULL;
+
+
+--
+-- TOC entry 5149 (class 2606 OID 16824)
+-- Name: students students_class_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.students
+    ADD CONSTRAINT students_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id) ON DELETE RESTRICT;
+
+
+--
+-- TOC entry 5150 (class 2606 OID 17326)
+-- Name: subjects subjects_class_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.subjects
+    ADD CONSTRAINT subjects_class_id_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id);
+
+
+--
+-- TOC entry 5164 (class 2606 OID 17013)
+-- Name: teacher_salary teacher_salary_teacher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_salary
+    ADD CONSTRAINT teacher_salary_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.faculty(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5151 (class 2606 OID 16868)
+-- Name: teacher_subjects teacher_subjects_subject_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_subjects
+    ADD CONSTRAINT teacher_subjects_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES public.subjects(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5152 (class 2606 OID 16863)
+-- Name: teacher_subjects teacher_subjects_teacher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.teacher_subjects
+    ADD CONSTRAINT teacher_subjects_teacher_id_fkey FOREIGN KEY (teacher_id) REFERENCES public.faculty(id) ON DELETE CASCADE;
+
+
+-- Completed on 2026-08-23 01:51:58
+
+--
+-- PostgreSQL database dump complete
+--
+
+
