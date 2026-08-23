@@ -1,0 +1,121 @@
+{% extends "core/base.html" %}
+{% block title %}Check Results — Pi - π Academy{% endblock %}
+
+{% block content %}
+<section data-reveal class="max-w-6xl mx-auto px-6 pt-16 pb-8">
+  <p class="eyebrow mb-3">Self-Service</p>
+  <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Check Your Results &amp; Attendance</h1>
+  <p class="mt-5 text-lg text-muted max-w-2xl leading-relaxed">
+    Enter your Student ID and the phone number on file to view your exam
+    results and attendance record. Only you can see this — nothing here
+    is public.
+  </p>
+</section>
+
+<div class="ruler-divider"></div>
+
+<section data-reveal class="max-w-6xl mx-auto px-6 py-16">
+  <div class="max-w-md mx-auto">
+    <form method="post" class="space-y-5" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-sm font-bold mb-1.5">
+          {{ field.label }}
+        </label>
+        {{ field }}
+        {% for error in field.errors %}
+        <p class="text-xs text-brand mt-1 font-semibold">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endfor %}
+      <button type="submit"
+              class="btn btn-primary w-full text-center">
+        Check Results
+      </button>
+    </form>
+
+    {% if not_found %}
+    <div class="mt-6 border-l-4 border-brand bg-brand/5 px-5 py-4 text-sm font-semibold flex items-start">
+      <svg class="tick-svg eager" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>
+      No matching student found. Double-check your Student ID and phone number.
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% if searched %}
+<div class="ruler-divider"></div>
+
+<section data-reveal class="max-w-6xl mx-auto px-6 py-16">
+  <div class="mb-12">
+    <p class="eyebrow mb-2">Showing results for</p>
+    <h2 class="text-2xl font-bold">{{ student.full_name }}</h2>
+    <p class="text-sm text-muted mt-1 font-mono">
+      {{ student.student_code }} &middot; {{ student.class_obj.class_name }}
+      {% if student.batch %} &middot; {{ student.batch.batch_name }}{% endif %}
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14 stagger">
+    <div data-reveal class="border border-hair p-6 text-center card-lift">
+      <p class="text-3xl font-bold font-mono text-brand count-up" data-count="{{ attendance_summary.present }}">0</p>
+      <p class="eyebrow mt-2">Present</p>
+    </div>
+    <div data-reveal class="border border-hair p-6 text-center card-lift">
+      <p class="text-3xl font-bold font-mono count-up" data-count="{{ attendance_summary.absent }}">0</p>
+      <p class="eyebrow mt-2">Absent</p>
+    </div>
+    <div data-reveal class="border border-hair p-6 text-center card-lift">
+      <p class="text-3xl font-bold font-mono count-up" data-count="{{ attendance_summary.late }}">0</p>
+      <p class="eyebrow mt-2">Late</p>
+    </div>
+  </div>
+
+  {% if recent_attendance %}
+  <div class="mb-14">
+    <h3 class="text-lg font-bold mb-5 flex items-center"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>Recent Attendance</h3>
+    <div class="border border-hair divide-y divide-hair">
+      {% for record in recent_attendance %}
+      <div class="px-6 py-3 flex items-center justify-between text-sm transition-colors duration-200 hover:bg-brand/5">
+        <span class="font-mono text-muted">{{ record.attendance_date|date:"d M Y" }}</span>
+        <span class="font-semibold {% if record.status == 'Present' %}text-brand{% endif %}">{{ record.status }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if exams %}
+  <div>
+    <h3 class="text-lg font-bold mb-5 flex items-center"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>Exam Results</h3>
+    <div class="space-y-6">
+      {% for exam, results in exams.items %}
+      <div class="border border-hair overflow-hidden">
+        <div class="px-6 py-4 border-b border-hair bg-ink text-white flex items-center justify-between">
+          <p class="font-bold">{{ exam.exam_name }}</p>
+          <p class="text-xs text-white/60 font-mono">{{ exam.exam_date|date:"d M Y" }}</p>
+        </div>
+        <div class="divide-y divide-hair">
+          {% for result in results %}
+          <div class="px-6 py-3 flex items-center justify-between text-sm transition-colors duration-200 hover:bg-brand/5">
+            <span>{{ result.subject.subject_name }}</span>
+            <span class="flex items-center gap-4">
+              <span class="font-semibold font-mono">{{ result.marks }}</span>
+              {% if result.grade %}
+              <span class="text-brand font-bold font-mono">{{ result.grade }}</span>
+              {% endif %}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <p class="text-muted">No exam results recorded yet.</p>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "admin/core/dashboard_base.html" %}
+
+{% block title %}{% if instance %}Edit Result{% else %}Add Result{% endif %} — Dashboard{% endblock %}
+{% block crumb %}Exams{% endblock %}
+
+{% block content %}
+<a href="{% if locked_exam %}{% url 'admin:core_exam_view' locked_exam.pk %}{% else %}{% url 'admin:core_exam_changelist' %}{% endif %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  Back to Exam
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{% if instance %}Edit Result{% else %}Add Result{% endif %}</h1>
+    {% if locked_exam %}
+    <p class="page-sub">For {{ locked_exam.exam_name }} &middot; {{ locked_exam.class_obj.class_name }}</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel form-card">
+  {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+    <div class="form-error" style="margin-bottom: 16px;">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% if locked_exam %}
+    {{ form.exam }}
+    <div class="form-field">
+      <span class="form-label">Exam</span>
+      <div class="code-badge">{{ locked_exam.exam_name }} &mdash; {{ locked_exam.class_obj.class_name }}</div>
+    </div>
+    {% else %}
+    <div class="form-field">
+      <label class="form-label" for="{{ form.exam.id_for_label }}">Exam</label>
+      {{ form.exam }}
+      {% if form.exam.errors %}<div class="form-error">{{ form.exam.errors.0 }}</div>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="form-field">
+      <label class="form-label" for="{{ form.student.id_for_label }}">Student</label>
+      {{ form.student }}
+      {% if form.student.errors %}<div class="form-error">{{ form.student.errors.0 }}</div>{% endif %}
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="{{ form.subject.id_for_label }}">Subject</label>
+      {{ form.subject }}
+      {% if form.subject.errors %}<div class="form-error">{{ form.subject.errors.0 }}</div>{% endif %}
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="{{ form.marks.id_for_label }}">Marks</label>
+      {{ form.marks }}
+      {% if form.marks.errors %}<div class="form-error">{{ form.marks.errors.0 }}</div>{% endif %}
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="{{ form.grade.id_for_label }}">Grade</label>
+      {{ form.grade }}
+      {% if form.grade.errors %}<div class="form-error">{{ form.grade.errors.0 }}</div>{% endif %}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-accent">{% if instance %}Save Changes{% else %}Add Result{% endif %}</button>
+      <a href="{% if locked_exam %}{% url 'admin:core_exam_view' locked_exam.pk %}{% else %}{% url 'admin:core_exam_changelist' %}{% endif %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

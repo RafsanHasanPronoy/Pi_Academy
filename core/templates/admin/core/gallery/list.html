@@ -1,0 +1,73 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}Gallery — Dashboard{% endblock %}
+{% block crumb %}Gallery{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Gallery</h1>
+    <p class="page-sub">{{ items|length }} item{{ items|length|pluralize }}</p>
+  </div>
+  <a href="{% url 'admin:core_gallery_add' %}" class="btn btn-accent">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+    Add a gallery item
+  </a>
+</div>
+
+<div class="panel">
+  {% if items %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Status</th>
+        <th style="width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td style="width:56px;">
+          {% if item.image_url %}
+          <img src="{{ item.image_url }}" alt="" style="width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
+          {% else %}
+          <span style="display:inline-block;width:40px;height:40px;border-radius:6px;background:var(--surface-2);"></span>
+          {% endif %}
+        </td>
+        <td style="font-weight:600;">{{ item.title|default:"—" }}</td>
+        <td>{{ item.category|default:"—" }}</td>
+        <td><span class="pill">{% if item.is_published %}Published{% else %}Draft{% endif %}</span></td>
+        <td>
+          <div class="row-actions">
+            <a class="btn btn-ghost btn-sm" href="{% url 'admin:core_gallery_view' item.id %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              View
+            </a>
+            <a class="btn btn-ghost btn-sm" href="{% url 'admin:core_gallery_change' item.id %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Edit
+            </a>
+            <form method="post" action="{% url 'admin:core_gallery_delete' item.id %}" onsubmit="return confirm('Delete this gallery item? This cannot be undone.');" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Delete
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <p>No gallery items yet. Add your first one to get started.</p>
+    <a href="{% url 'admin:core_gallery_add' %}" class="btn btn-accent" style="margin-top:12px;">Add a gallery item</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

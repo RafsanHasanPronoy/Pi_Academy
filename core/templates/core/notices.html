@@ -1,0 +1,29 @@
+{% extends "core/base.html" %}
+{% block title %}Notices — Pi - π Academy{% endblock %}
+
+{% block content %}
+<section data-reveal class="max-w-6xl mx-auto px-6 pt-16 pb-8">
+  <p class="eyebrow mb-3">Stay Updated</p>
+  <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Notices</h1>
+</section>
+
+<div class="ruler-divider"></div>
+
+<section data-reveal class="max-w-4xl mx-auto px-6 py-16">
+  {% if notices %}
+  <div class="divide-y divide-hair stagger">
+    {% for notice in notices %}
+    <div data-reveal class="py-8 px-4 -mx-4 grid grid-cols-1 md:grid-cols-4 gap-4 transition-colors duration-200 hover:bg-brand/5">
+      <p class="text-sm text-muted md:col-span-1">{{ notice.published_date|date:"d M Y" }}</p>
+      <div class="md:col-span-3">
+        <h3 class="text-lg font-bold mb-2 flex items-start"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>{{ notice.title }}</h3>
+        <p class="text-sm text-muted leading-relaxed">{{ notice.description }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">No notices published yet — check back soon.</p>
+  {% endif %}
+</section>
+{% endblock %}

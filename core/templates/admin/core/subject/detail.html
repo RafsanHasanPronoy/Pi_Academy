@@ -1,0 +1,146 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}{{ instance.subject_name }} — Dashboard{% endblock %}
+{% block crumb %}{{ instance.subject_name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .stat-card-icon {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--accent-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stat-card-icon svg { width: 21px; height: 21px; }
+  .stat-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 4px;
+  }
+  .stat-value { font-size: 1.55rem; font-weight: 700; color: var(--text); line-height: 1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_subject_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+  Back to Subjects
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ instance.subject_name }}</h1>
+    <p class="page-sub">Class: {{ instance.class_obj.class_name }}{% if instance.subject_code %} · Code: {{ instance.subject_code }}{% else %} · No subject code set{% endif %}</p>
+  </div>
+  <div class="row-actions">
+    <a href="{% url 'admin:core_subject_change' instance.id %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Edit
+    </a>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <span class="stat-card-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15.5" rx="1.2"/><path d="M3.5 10h17"/><path d="M8 3v4M16 3v4"/></svg>
+    </span>
+    <div>
+      <p class="stat-label">Weekly classes</p>
+      <p class="stat-value">{{ schedule|length }}</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-card-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    </span>
+    <div>
+      <p class="stat-label">Exams held</p>
+      <p class="stat-value">{{ exams|length }}</p>
+    </div>
+  </div>
+</div>
+
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:0 0 14px;">Weekly schedule</p>
+<div class="panel" style="margin-bottom:34px;">
+  {% if schedule %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Time</th>
+        <th>Teacher</th>
+        <th>Class / Batch</th>
+        <th>Room</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in schedule %}
+      <tr>
+        <td style="font-weight:600;">{{ entry.day_of_week }}</td>
+        <td>{{ entry.start_time|time:"g:i A" }} – {{ entry.end_time|time:"g:i A" }}</td>
+        <td>{{ entry.teacher.full_name }}</td>
+        <td>{{ entry.batch.class_obj.class_name }} — {{ entry.batch.batch_name }}</td>
+        <td>{{ entry.room|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <p>This subject isn't on any weekly schedule yet.</p>
+  </div>
+  {% endif %}
+</div>
+
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:0 0 14px;">Exams featuring this subject</p>
+<div class="panel">
+  {% if exams %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Exam name</th>
+        <th>Class</th>
+        <th>Exam date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in exams %}
+      <tr>
+        <td style="font-weight:600;">{{ e.exam_name }}</td>
+        <td>{{ e.class_obj.class_name }}</td>
+        <td>{{ e.exam_date }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <p>No exam results recorded for this subject yet.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

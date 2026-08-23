@@ -1,0 +1,56 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}{% if instance %}Edit Batch{% else %}Add Batch{% endif %} — Dashboard{% endblock %}
+{% block crumb %}{% if instance %}Edit batch{% else %}Add a batch{% endif %}{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_batch_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+  Back to Batches
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{% if instance %}Edit batch{% else %}Add a batch{% endif %}</h1>
+    <p class="page-sub">{% if instance %}Update details for {{ instance.batch_name }}{% else %}Fill in the details below to create a new batch{% endif %}</p>
+  </div>
+</div>
+
+<div class="panel form-card">
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    {% if locked_class %}
+    <div class="form-field">
+      <label class="form-label">Class</label>
+      <p style="padding:12px 0; font-weight:600;">{{ locked_class }}</p>
+    </div>
+    {% endif %}
+
+    {% for field in form %}
+    {% if field.name == "class_obj" and locked_class %}
+      {{ field }}
+    {% else %}
+    <div class="form-field">
+      <label for="{{ field.id_for_label }}" class="form-label">
+        {{ field.label }}{% if field.field.required %} *{% endif %}
+      </label>
+      {{ field }}
+      {% if field.help_text %}
+      <p class="form-help">{{ field.help_text }}</p>
+      {% endif %}
+      {% for error in field.errors %}
+      <p class="form-error">{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-accent">
+        {% if instance %}Save changes{% else %}Add batch{% endif %}
+      </button>
+      <a href="{% url 'admin:core_batch_changelist' %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

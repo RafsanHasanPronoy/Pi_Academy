@@ -1,0 +1,66 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}Subjects — Dashboard{% endblock %}
+{% block crumb %}Subjects{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Subjects</h1>
+    <p class="page-sub">{{ subjects|length }} subject{{ subjects|length|pluralize }} set up</p>
+  </div>
+  <a href="{% url 'admin:core_subject_add' %}" class="btn btn-accent">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+    Add a subject
+  </a>
+</div>
+
+<div class="panel">
+  {% if subjects %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Subject name</th>
+        <th>Class</th>
+        <th>Subject code</th>
+        <th style="width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in subjects %}
+      <tr>
+        <td style="font-weight:600;">{{ s.subject_name }}</td>
+        <td>{{ s.class_obj.class_name }}</td>
+        <td>{% if s.subject_code %}<span class="pill">{{ s.subject_code }}</span>{% else %}—{% endif %}</td>
+        <td>
+          <div class="row-actions">
+            <a class="btn btn-ghost btn-sm" href="{% url 'admin:core_subject_view' s.id %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              View
+            </a>
+            <a class="btn btn-ghost btn-sm" href="{% url 'admin:core_subject_change' s.id %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Edit
+            </a>
+            <form method="post" action="{% url 'admin:core_subject_delete' s.id %}" onsubmit="return confirm('Delete {{ s.subject_name|escapejs }}? This cannot be undone.');" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Delete
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <p>No subjects yet. Add your first one to get started.</p>
+    <a href="{% url 'admin:core_subject_add' %}" class="btn btn-accent" style="margin-top:12px;">Add a subject</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

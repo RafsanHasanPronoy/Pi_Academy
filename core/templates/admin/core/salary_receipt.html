@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Salary Receipt — {{ salary.teacher.full_name }} — {{ academy_name }}</title>
+<style>
+  :root { --brand: #4e6933; --ink: #1A1A1A; --muted: #6B7280; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    color: var(--ink);
+    margin: 0;
+    padding: 48px;
+    background: #f4f4f4;
+  }
+  .receipt {
+    max-width: 640px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 44px 48px;
+  }
+  .receipt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--brand);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+  }
+  .brand-mark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-badge {
+    width: 40px; height: 40px;
+    background: var(--brand);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.3rem;
+    border-radius: 6px;
+  }
+  .brand-name { font-size: 1.15rem; font-weight: bold; }
+  .receipt-label {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .receipt-id { font-size: 1.1rem; font-weight: bold; color: var(--ink); }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 32px;
+    margin-bottom: 30px;
+  }
+  .meta-item .meta-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 0 0 4px;
+  }
+  .meta-item .meta-value { font-size: 0.98rem; font-weight: 600; margin: 0; }
+
+  .amount-box {
+    background: rgba(78,105,51,0.06);
+    border: 1px solid rgba(78,105,51,0.25);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .amount-box .amount-label { font-size: 0.85rem; color: var(--muted); }
+  .amount-box .amount-value { font-size: 1.9rem; font-weight: bold; color: var(--brand); }
+
+  .remarks { font-size: 0.88rem; color: var(--muted); margin-bottom: 30px; }
+  .remarks .remarks-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 4px;
+  }
+
+  .receipt-footer {
+    border-top: 1px solid rgba(0,0,0,0.08);
+    padding-top: 16px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .print-bar {
+    max-width: 640px;
+    margin: 0 auto 16px;
+    text-align: right;
+  }
+  .print-btn {
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: bold;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .print-btn:hover { opacity: 0.9; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .print-bar { display: none; }
+    .receipt { border: none; padding: 0; max-width: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="print-bar">
+  <button class="print-btn" onclick="window.print()">Print Receipt</button>
+</div>
+
+<div class="receipt">
+  <div class="receipt-header">
+    <div class="brand-mark">
+      <span class="brand-badge">&pi;</span>
+      <span class="brand-name">{{ academy_name }}</span>
+    </div>
+    <div class="receipt-label">
+      Salary Receipt<br>
+      <span class="receipt-id">#{{ salary.id }}</span>
+    </div>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-item">
+      <p class="meta-label">Faculty</p>
+      <p class="meta-value">{{ salary.teacher.full_name }}</p>
+    </div>
+    <div class="meta-item">
+      <p class="meta-label">Designation</p>
+      <p class="meta-value">{{ salary.teacher.designation|default:"—" }}</p>
+    </div>
+    <div class="meta-item">
+      <p class="meta-label">Salary Month</p>
+      <p class="meta-value">{{ salary.salary_month|date:"F Y" }}</p>
+    </div>
+    <div class="meta-item">
+      <p class="meta-label">Payment Date</p>
+      <p class="meta-value">{{ salary.payment_date|date:"d M Y"|default:"—" }}</p>
+    </div>
+  </div>
+
+  <div class="amount-box">
+    <span class="amount-label">Amount Paid</span>
+    <span class="amount-value">&#2547;{{ salary.amount }}</span>
+  </div>
+
+  {% if salary.remarks %}
+  <div class="remarks">
+    <p class="remarks-label">Remarks</p>
+    <p>{{ salary.remarks }}</p>
+  </div>
+  {% endif %}
+
+  <div class="receipt-footer">
+    <span>Generated {{ generated_at|date:"d M Y, g:i A" }}</span>
+    <span>{{ academy_name }} &middot; This is a system-generated receipt</span>
+  </div>
+</div>
+
+</body>
+</html>

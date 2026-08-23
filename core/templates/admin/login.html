@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }} — Pi - π Academy</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#1A1A1A',
+          brand: '#4e6933',
+          'brand-dark': '#3c5127',
+          paper: '#FFFFFF',
+          muted: '#6B7280',
+          hair: '#E7E5E4',
+        },
+        fontFamily: {
+          sans: ['"Times New Roman"', 'Times', 'Georgia', 'serif'],
+        },
+      }
+    }
+  }
+</script>
+<style>
+  :root { --ease: cubic-bezier(0.16, 1, 0.3, 1); }
+
+  body {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-feature-settings: "tnum" 1;
+  }
+
+  a:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 2px solid #4e6933;
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+
+  .ruler-divider {
+    height: 6px;
+    background: repeating-linear-gradient(
+      90deg,
+      #4e6933 0px, #4e6933 28px,
+      transparent 28px, transparent 34px
+    );
+  }
+
+  .btn {
+    display: inline-block;
+    font-weight: 700;
+    padding: 0.9rem 1.75rem;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), background-color 0.2s var(--ease);
+  }
+  .btn-primary { background: #4e6933; color: #fff; width: 100%; text-align: center; }
+  .btn-primary:hover {
+    background: #1A1A1A;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -14px rgba(78, 105, 51, 0.45);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  .field-label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+  }
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    border: 1px solid #E7E5E4;
+    padding: 0.8rem 1rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    background: #fff;
+    color: #1A1A1A;
+  }
+  input[type="text"]:focus, input[type="password"]:focus {
+    outline: none;
+    border-color: #4e6933;
+    box-shadow: 0 0 0 3px rgba(78,105,51,0.12);
+  }
+</style>
+</head>
+<body class="bg-paper text-ink antialiased min-h-screen flex flex-col">
+
+<header class="border-b border-hair">
+  <div class="max-w-6xl mx-auto px-6 flex items-center h-20">
+    <a href="/" class="flex items-center gap-3">
+      <span class="w-9 h-9 bg-brand text-white flex items-center justify-center font-bold text-lg">&pi;</span>
+      <span class="font-bold text-xl tracking-tight">Pi - π Academy</span>
+    </a>
+  </div>
+</header>
+<div class="ruler-divider"></div>
+
+<main class="flex-1 flex items-center justify-center px-6 py-16">
+  <div class="w-full max-w-sm">
+    <p class="eyebrow" style="letter-spacing:0.14em;text-transform:uppercase;font-size:0.75rem;font-weight:700;color:#4e6933;">Staff Access</p>
+    <h1 class="text-2xl font-bold mt-2 mb-8">{{ title|default:"Admin Login" }}</h1>
+
+    {% if form.errors and not form.non_field_errors %}
+    <div class="border-l-4 border-red-500 bg-red-50 text-red-700 px-5 py-4 text-sm font-semibold mb-6">
+      Please enter the correct username and password.
+    </div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+    <div class="border-l-4 border-red-500 bg-red-50 text-red-700 px-5 py-4 text-sm font-semibold mb-6">
+      {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+    </div>
+    {% endif %}
+
+    {% if error_message %}
+    <div class="border-l-4 border-red-500 bg-red-50 text-red-700 px-5 py-4 text-sm font-semibold mb-6">
+      {{ error_message }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="{{ app_path }}">
+      {% csrf_token %}
+      <div class="mb-5">
+        <label for="id_username" class="field-label">Username</label>
+        {{ form.username }}
+      </div>
+      <div class="mb-7">
+        <label for="id_password" class="field-label">Password</label>
+        {{ form.password }}
+      </div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="btn btn-primary">Log in</button>
+    </form>
+
+    <a href="/" class="inline-block mt-8 text-sm font-semibold text-muted hover:text-brand transition-colors">&larr; Back to Pi - π Academy</a>
+  </div>
+</main>
+
+</body>
+</html>

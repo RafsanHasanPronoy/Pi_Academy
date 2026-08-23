@@ -1,0 +1,50 @@
+{% extends "admin/core/dashboard_base.html" %}
+
+{% block title %}{% if instance %}Edit Exam{% else %}Add Exam{% endif %} — Dashboard{% endblock %}
+{% block crumb %}Exams{% endblock %}
+
+{% block content %}
+<a href="{% if instance %}{% url 'admin:core_exam_view' instance.pk %}{% else %}{% url 'admin:core_exam_changelist' %}{% endif %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  {% if instance %}Back to Exam{% else %}Back to Exams{% endif %}
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{% if instance %}Edit Exam{% else %}Add Exam{% endif %}</h1>
+  </div>
+</div>
+
+<div class="panel form-card">
+  {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+    <div class="form-error" style="margin-bottom: 16px;">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-field">
+      <label class="form-label" for="{{ form.class_obj.id_for_label }}">Class</label>
+      {{ form.class_obj }}
+      {% if form.class_obj.errors %}<div class="form-error">{{ form.class_obj.errors.0 }}</div>{% endif %}
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="{{ form.exam_name.id_for_label }}">Exam Name</label>
+      {{ form.exam_name }}
+      {% if form.exam_name.errors %}<div class="form-error">{{ form.exam_name.errors.0 }}</div>{% endif %}
+    </div>
+    <div class="form-field">
+      <label class="form-label" for="{{ form.exam_date.id_for_label }}">Exam Date</label>
+      {{ form.exam_date }}
+      {% if form.exam_date.errors %}<div class="form-error">{{ form.exam_date.errors.0 }}</div>{% endif %}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-accent">{% if instance %}Save Changes{% else %}Add Exam{% endif %}</button>
+      <a href="{% if instance %}{% url 'admin:core_exam_view' instance.pk %}{% else %}{% url 'admin:core_exam_changelist' %}{% endif %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

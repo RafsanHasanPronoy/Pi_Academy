@@ -1,0 +1,61 @@
+{% extends "core/base.html" %}
+{% block title %}Classes — Pi - π Academy{% endblock %}
+
+{% block content %}
+<section data-reveal class="max-w-6xl mx-auto px-6 pt-16 pb-8">
+  <p class="eyebrow mb-3">Course Catalog</p>
+  <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Classes &amp; Batches</h1>
+  <p class="mt-5 text-lg text-muted max-w-2xl leading-relaxed">
+    Current classes and their batch timings. Applying online lets you
+    request a specific batch, subject to seats.
+  </p>
+</section>
+
+<div class="ruler-divider"></div>
+
+<section data-reveal class="max-w-6xl mx-auto px-6 py-16">
+  {% if classes %}
+  <div class="space-y-10 stagger">
+    {% for class_obj in classes %}
+    <div data-reveal class="border border-hair overflow-hidden">
+      <div class="flex items-center justify-between px-7 py-5 border-b border-hair bg-ink text-white">
+        <h2 class="text-xl font-bold flex items-center"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>{{ class_obj.class_name }}</h2>
+        <span class="text-xs text-white/60 font-semibold uppercase tracking-wide">{{ class_obj.academic_year }}</span>
+      </div>
+      {% with batches=class_obj.batch_set.all %}
+      {% if batches %}
+      <div class="divide-y divide-hair">
+        {% for batch in batches %}
+        <div class="px-7 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-2 transition-colors duration-200 hover:bg-brand/5">
+          <p class="font-bold">{{ batch.batch_name }}</p>
+          <div class="flex flex-wrap gap-x-8 gap-y-1 text-sm text-muted">
+            {% if batch.start_time and batch.end_time %}
+            <span>{{ batch.start_time|time:"g:i A" }} – {{ batch.end_time|time:"g:i A" }}</span>
+            {% endif %}
+            {% if batch.room %}
+            <span>Room {{ batch.room }}</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="px-7 py-5 text-sm text-muted">No batches added yet for this class.</p>
+      {% endif %}
+      {% endwith %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">No classes published yet — check back soon.</p>
+  {% endif %}
+
+  <div class="mt-14 border-t border-hair pt-10 text-center">
+    <h2 class="text-2xl font-bold mb-3">Found a class that fits?</h2>
+    <a href="{% url 'admission' %}"
+       class="btn btn-primary">
+      Apply for Admission
+    </a>
+  </div>
+</section>
+{% endblock %}

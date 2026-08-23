@@ -1,0 +1,65 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}Bulk Upload Results — Dashboard{% endblock %}
+{% block crumb %}Exams{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_exam_view' exam.pk %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  Back to {{ exam.exam_name }}
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Bulk Upload Results</h1>
+    <p class="page-sub">{{ exam.exam_name }} &middot; {{ exam.class_obj.class_name }} &middot; {{ exam.exam_date|date:"d M Y" }}</p>
+  </div>
+</div>
+
+<div class="panel form-card" style="margin-bottom:28px;">
+  <p class="form-label" style="margin-bottom:12px;">Step 1 — Download the mark sheet</p>
+  <p style="font-size:0.9rem; color:var(--muted); margin:0 0 16px;">
+    Pre-filled with every student currently in {{ exam.class_obj.class_name }}, with one column per subject. Fill in marks under each subject — leave a cell blank to skip that subject for that student. Re-uploading later with corrected marks will update the existing results, not duplicate them.
+  </p>
+  <a href="{% url 'admin:core_examresult_bulk_template' %}?exam={{ exam.pk }}" class="btn btn-ghost">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+    Download mark sheet (.xlsx)
+  </a>
+</div>
+
+<div class="panel form-card">
+  <p class="form-label" style="margin-bottom:12px;">Step 2 — Upload the filled-in sheet</p>
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    <div class="form-field">
+      <input type="file" name="excel_file" accept=".xlsx" required>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-accent">Upload and save marks</button>
+    </div>
+  </form>
+</div>
+
+{% if results %}
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:28px 0 14px;">Results</p>
+
+{% if results.saved_count %}
+<div class="msg" style="margin-bottom:14px;">
+  {{ results.saved_count }} result{{ results.saved_count|pluralize }} saved successfully.
+</div>
+{% endif %}
+
+{% if results.errors %}
+<div class="panel" style="padding:20px 24px;">
+  <p style="font-weight:700; color:var(--danger); margin:0 0 12px;">
+    {{ results.errors|length }} issue{{ results.errors|length|pluralize }} found
+  </p>
+  <ul style="margin:0; padding-left:20px; font-size:0.9rem; color:var(--text);">
+    {% for error in results.errors %}
+    <li style="margin-bottom:6px;">{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endif %}
+
+{% endblock %}

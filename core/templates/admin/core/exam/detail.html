@@ -1,0 +1,83 @@
+{% extends "admin/core/dashboard_base.html" %}
+
+{% block title %}{{ instance.exam_name }} — Dashboard{% endblock %}
+{% block crumb %}Exams{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_exam_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  Back to Exams
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ instance.exam_name }}</h1>
+    <p class="page-sub">{{ instance.class_obj.class_name }} &middot; {{ instance.exam_date|date:"d M Y" }}</p>
+  </div>
+  <div class="row-actions">
+    <a href="{% url 'admin:core_exam_change' instance.pk %}" class="btn btn-ghost">Edit Exam</a>
+    <form method="post" action="{% url 'admin:core_exam_delete' instance.pk %}" onsubmit="return confirm('Delete this exam? This will also delete all its recorded results.');" style="margin:0;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Delete Exam</button>
+    </form>
+  </div>
+</div>
+
+<div class="page-header" style="margin-bottom:14px;">
+  <p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:0;">Results</p>
+  <div class="row-actions">
+    <a href="{% url 'admin:core_examresult_bulk_upload' %}?exam={{ instance.pk }}" class="btn btn-ghost btn-sm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+      Bulk Upload
+    </a>
+    <a href="{% url 'admin:core_examresult_add' %}?exam={{ instance.pk }}" class="btn btn-accent btn-sm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+      Add Result
+    </a>
+  </div>
+</div>
+
+<div class="panel">
+  {% if results %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Subject</th>
+        <th>Marks</th>
+        <th>Grade</th>
+        <th style="width:180px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in results %}
+      <tr>
+        <td>
+          <div style="font-weight:600;">{{ result.student.full_name }}</div>
+          <div style="font-size:0.8rem; color:var(--muted);">{{ result.student.student_code }}</div>
+        </td>
+        <td>{{ result.subject.subject_name }}</td>
+        <td style="font-weight:700;">{{ result.marks }}</td>
+        <td>{% if result.grade %}<span class="pill">{{ result.grade }}</span>{% else %}&mdash;{% endif %}</td>
+        <td>
+          <div class="row-actions">
+            <a href="{% url 'admin:core_examresult_change' result.pk %}" class="btn btn-ghost btn-sm">Edit</a>
+            <form method="post" action="{% url 'admin:core_examresult_delete' result.pk %}" onsubmit="return confirm('Delete this result?');" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <p>No results recorded for this exam yet.</p>
+    <a href="{% url 'admin:core_examresult_add' %}?exam={{ instance.pk }}" class="btn btn-accent btn-sm" style="margin-top:10px;">Add Result</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

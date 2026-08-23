@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Pi - π Academy{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#1A1A1A',
+          brand: '#4e6933',
+          'brand-dark': '#3c5127',
+          paper: '#FFFFFF',
+          surface: '#F7F7F5',
+          muted: '#6B7280',
+          hair: '#E7E5E4',
+        },
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+          display: ['Sora', 'Inter', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'monospace'],
+        },
+      }
+    }
+  }
+</script>
+<style>
+  :root { --ease: cubic-bezier(0.16, 1, 0.3, 1); }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #1A1A1A;
+    position: relative;
+  }
+
+  /* Signature: an extremely subtle graph-paper texture behind the whole site —
+     a quiet nod to notebooks, exam sheets, and math. Fixed so it never scrolls
+     away, and faint enough to never interfere with reading. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgba(78, 105, 51, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(78, 105, 51, 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 70%);
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 70%);
+  }
+
+  h1, h2, h3 {
+    font-family: 'Sora', 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+    outline: 2px solid #4e6933;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Signature: a checkmark "stamped" inside a soft circular badge — like a
+     teacher's mark on a graded paper — used everywhere a tick already appears. */
+  .tick-svg {
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 0.65em;
+    flex-shrink: 0;
+    position: relative;
+    top: 0.02em;
+    overflow: visible;
+    background: #EEF0FC;
+    border-radius: 9999px;
+    padding: 0.3em;
+    box-sizing: border-box;
+  }
+  .tick-svg path {
+    fill: none;
+    stroke: #4e6933;
+    stroke-width: 3.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Eyebrow becomes a small pill badge with a leading dot, rather than plain
+     uppercase text — reads as a label/tag, not a heading fragment. */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #4e6933;
+    background: rgba(78, 105, 51, 0.08);
+    padding: 0.4em 0.9em 0.4em 0.7em;
+    border-radius: 9999px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4e6933;
+    flex-shrink: 0;
+  }
+  section.bg-ink .eyebrow { background: rgba(255,255,255,0.1); color: #C7CBFF; }
+
+  /* Cards that used to be flat, square, hairline boxes are now soft, rounded,
+     elevated surfaces — the "broadsheet" feel becomes a "notebook card" feel. */
+  .border-hair {
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 2px rgba(26, 26, 26, 0.04), 0 12px 28px -20px rgba(26, 26, 26, 0.16);
+    background-color: #fff;
+  }
+
+  header.is-scrolled {
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03), 0 12px 32px -18px rgba(26, 26, 26, 0.22);
+  }
+
+  /* Nav links become soft pills that fill in on hover, instead of a plain underline */
+  .nav-link {
+    position: relative;
+    padding: 0.55rem 0.9rem;
+    border-radius: 9999px;
+    transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  .nav-link:hover, .nav-link:focus-visible {
+    background: rgba(78, 105, 51, 0.08);
+    color: #4e6933;
+  }
+
+  /* Buttons: pill-shaped, with a lift + soft brand-tinted glow on hover */
+  .btn {
+    display: inline-block;
+    font-weight: 700;
+    padding: 0.9rem 1.85rem;
+    border-radius: 9999px;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), background-color 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  .btn-primary {
+    background: #4e6933;
+    color: #fff;
+    box-shadow: 0 10px 24px -12px rgba(78, 105, 51, 0.55);
+  }
+  .btn-primary:hover {
+    background: #3c5127;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px -14px rgba(78, 105, 51, 0.6);
+  }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid rgba(26,26,26,0.15);
+    color: #1A1A1A;
+  }
+  .btn-outline:hover {
+    border-color: #4e6933;
+    color: #4e6933;
+    background: rgba(78, 105, 51, 0.06);
+    transform: translateY(-2px);
+  }
+  .btn-outline:active { transform: translateY(0); }
+
+  .card-lift { transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), border-color 0.25s var(--ease); }
+  .card-lift:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 48px -20px rgba(78, 105, 51, 0.32);
+    border-color: rgba(78, 105, 51, 0.35);
+  }
+
+  /* A short highlighter-marker stroke behind key words, evoking a teacher's
+     highlighter rather than a flat color swap */
+  .highlight {
+    position: relative;
+    white-space: nowrap;
+  }
+  .highlight::after {
+    content: "";
+    position: absolute;
+    left: -0.1em; right: -0.1em; bottom: 0.06em;
+    height: 0.34em;
+    background: #4e6933;
+    opacity: 0.55;
+    z-index: -1;
+    transform: skewX(-8deg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Page-load entrance: for above-the-fold content that should animate in
+       immediately on load, staggered, rather than wait for a scroll trigger */
+    [data-load-reveal] {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+    [data-load-reveal].loaded { opacity: 1; transform: translateY(0); }
+    .load-stagger > [data-load-reveal]:nth-child(1) { transition-delay: 60ms; }
+    .load-stagger > [data-load-reveal]:nth-child(2) { transition-delay: 160ms; }
+    .load-stagger > [data-load-reveal]:nth-child(3) { transition-delay: 260ms; }
+    .load-stagger > [data-load-reveal]:nth-child(4) { transition-delay: 360ms; }
+    .load-stagger > [data-load-reveal]:nth-child(5) { transition-delay: 460ms; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+    }
+    [data-reveal].revealed { opacity: 1; transform: translateY(0); }
+
+    .stagger > *:nth-child(1) { transition-delay: 0ms; }
+    .stagger > *:nth-child(2) { transition-delay: 70ms; }
+    .stagger > *:nth-child(3) { transition-delay: 140ms; }
+    .stagger > *:nth-child(4) { transition-delay: 210ms; }
+    .stagger > *:nth-child(5) { transition-delay: 280ms; }
+    .stagger > *:nth-child(6) { transition-delay: 350ms; }
+
+    .tick-svg path {
+      stroke-dasharray: 20;
+      stroke-dashoffset: 20;
+      transition: stroke-dashoffset 0.45s var(--ease) 0.1s;
+    }
+    .revealed .tick-svg path,
+    .tick-svg.eager path { stroke-dashoffset: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  /* Signature: the old solid ruler-stripe divider becomes a soft dotted
+     grid-line — the same "ruler" idea, quieter and more contemporary */
+  .ruler-divider {
+    height: 1px;
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(78, 105, 51, 0.35) 0px, rgba(78, 105, 51, 0.35) 5px,
+      transparent 5px, transparent 13px
+    );
+  }
+
+  #mobileMenu {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.35s var(--ease), opacity 0.25s var(--ease);
+  }
+  #mobileMenu.open { max-height: 32rem; opacity: 1; }
+  #mobileMenu a {
+    display: block;
+    padding: 0.6rem 0.9rem;
+    border-radius: 0.75rem;
+    transition: background-color 0.2s var(--ease);
+  }
+  #mobileMenu a:hover { background: rgba(78, 105, 51, 0.08); }
+
+  /* Form inputs get a consistent, friendlier look site-wide without touching
+     every template — rounded, soft border, brand focus ring */
+  input:not([type="checkbox"]):not([type="radio"]), textarea, select {
+    width: 100%;
+    border: 1.5px solid #E7E7F4;
+    border-radius: 0.85rem;
+    padding: 0.7rem 1rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    background: #fff;
+    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #4e6933;
+    box-shadow: 0 0 0 4px rgba(78, 105, 51, 0.12);
+  }
+</style>
+</head>
+<body class="bg-paper text-ink antialiased">
+
+<header id="siteHeader" class="border-b border-hair sticky top-0 bg-paper/90 backdrop-blur z-40 transition-shadow duration-300" style="border-radius:0;">
+  <div class="max-w-6xl mx-auto px-6 flex items-center justify-between h-20">
+    <a href="{% url 'home' %}" class="flex items-center gap-3">
+      <span class="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-brand-dark text-white flex items-center justify-center font-display font-bold text-lg shadow-lg shadow-brand/30">&pi;</span>
+      <span class="font-display font-bold text-xl tracking-tight">Pi - π Academy</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-1 text-sm font-semibold">
+      <a href="{% url 'home' %}" class="nav-link transition-colors">Home</a>
+      <a href="{% url 'about' %}" class="nav-link transition-colors">About</a>
+      <a href="{% url 'classes' %}" class="nav-link transition-colors">Classes</a>
+      <a href="{% url 'faculty' %}" class="nav-link transition-colors">Faculty</a>
+      <a href="{% url 'admission' %}" class="nav-link transition-colors">Admission</a>
+      <a href="{% url 'results' %}" class="nav-link transition-colors">Results</a>
+      <div class="relative group">
+        <button class="nav-link transition-colors flex items-center gap-1">
+          More <span class="text-xs transition-transform duration-200 group-hover:rotate-180 inline-block">&#9662;</span>
+        </button>
+        <div class="absolute right-0 top-full pt-3 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200">
+          <div class="bg-white border border-hair shadow-xl w-48 py-2 rounded-2xl overflow-hidden">
+            <a href="{% url 'notices' %}" class="block px-4 py-2.5 hover:bg-brand/5 hover:text-brand transition-colors">Notices</a>
+            <a href="{% url 'achievements' %}" class="block px-4 py-2.5 hover:bg-brand/5 hover:text-brand transition-colors">Achievements</a>
+            <a href="{% url 'gallery' %}" class="block px-4 py-2.5 hover:bg-brand/5 hover:text-brand transition-colors">Gallery</a>
+            <a href="{% url 'contact' %}" class="block px-4 py-2.5 hover:bg-brand/5 hover:text-brand transition-colors">Contact</a>
+            <a href="/admin/" class="block px-4 py-2.5 border-t border-hair mt-1 pt-3 hover:bg-brand/5 hover:text-brand transition-colors">
+              {% if request.user.is_staff %}Admin Dashboard{% else %}Admin Login{% endif %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <a href="/admin/" class="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full border border-hair hover:border-brand hover:text-brand hover:bg-brand/5 transition-colors mr-3" aria-label="{% if request.user.is_staff %}Admin Dashboard{% else %}Admin Login{% endif %}" title="{% if request.user.is_staff %}Admin Dashboard{% else %}Admin Login{% endif %}">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    </a>
+    <a href="{% url 'admission' %}" class="btn btn-primary hidden md:inline-block text-sm !px-5 !py-2.5">
+      Apply Now
+    </a>
+    <button id="menuBtn" class="md:hidden text-2xl leading-none w-8 h-8 flex items-center justify-center" aria-label="Toggle menu" aria-expanded="false">
+      <span id="menuIcon">&#9776;</span>
+    </button>
+  </div>
+  <nav id="mobileMenu" class="md:hidden border-t border-hair px-6 flex flex-col gap-1 text-sm font-semibold" style="border-radius:0;">
+    <div class="py-4 flex flex-col gap-1">
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'about' %}">About</a>
+      <a href="{% url 'classes' %}">Classes</a>
+      <a href="{% url 'faculty' %}">Faculty</a>
+      <a href="{% url 'admission' %}">Admission</a>
+      <a href="{% url 'results' %}">Results</a>
+      <a href="{% url 'notices' %}">Notices</a>
+      <a href="{% url 'achievements' %}">Achievements</a>
+      <a href="{% url 'gallery' %}">Gallery</a>
+      <a href="{% url 'contact' %}">Contact</a>
+      <a href="/admin/" class="pt-4 mt-2 border-t border-hair !rounded-none">
+        {% if request.user.is_staff %}Admin Dashboard{% else %}Admin Login{% endif %}
+      </a>
+    </div>
+  </nav>
+</header>
+
+{% if messages %}
+<div class="max-w-6xl mx-auto px-6 mt-6">
+  {% for message in messages %}
+  <div class="border border-hair bg-brand/5 px-5 py-4 text-sm font-semibold flex items-start rounded-2xl">
+    <svg class="tick-svg eager" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>{{ message }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="border-t border-hair mt-24" style="border-radius:0;">
+  <div class="max-w-6xl mx-auto px-6 py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-9 h-9 rounded-full bg-gradient-to-br from-brand to-brand-dark text-white flex items-center justify-center font-display font-bold">&pi;</span>
+        <span class="font-display font-bold text-lg">Pi - π Academy</span>
+      </div>
+      <p class="text-sm text-muted leading-relaxed">
+        Structured classes, honest marking, and steady attention —
+        built for students who want to actually improve.
+      </p>
+    </div>
+    <div>
+      <p class="eyebrow mb-4">Quick Links</p>
+      <ul class="space-y-2 text-sm">
+        <li><a href="{% url 'admission' %}" class="hover:text-brand transition-colors">Admission</a></li>
+        <li><a href="{% url 'notices' %}" class="hover:text-brand transition-colors">Notices</a></li>
+        <li><a href="{% url 'achievements' %}" class="hover:text-brand transition-colors">Achievements</a></li>
+        <li><a href="{% url 'gallery' %}" class="hover:text-brand transition-colors">Gallery</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="eyebrow mb-4">Get in Touch</p>
+      <ul class="space-y-2 text-sm text-muted">
+        <li>Narayanganj, Dhaka, Bangladesh</li>
+        <li><a href="{% url 'contact' %}" class="hover:text-brand transition-colors">Send us a message &rarr;</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="border-t border-hair" style="border-radius:0;">
+    <p class="max-w-6xl mx-auto px-6 py-5 text-xs text-muted">
+      &copy; {% now "Y" %} Pi - π Academy. All rights reserved.
+    </p>
+  </div>
+</footer>
+
+<script>
+  var menuBtn = document.getElementById('menuBtn');
+  var mobileMenu = document.getElementById('mobileMenu');
+  var menuIcon = document.getElementById('menuIcon');
+  menuBtn.addEventListener('click', function () {
+    var isOpen = mobileMenu.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', isOpen);
+    menuIcon.innerHTML = isOpen ? '&#10005;' : '&#9776;';
+  });
+
+  var header = document.getElementById('siteHeader');
+  var onScroll = function () {
+    header.classList.toggle('is-scrolled', window.scrollY > 8);
+  };
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  var revealables = document.querySelectorAll('[data-reveal]');
+  if ('IntersectionObserver' in window && revealables.length) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    revealables.forEach(function (el) { observer.observe(el); });
+  } else {
+    revealables.forEach(function (el) { el.classList.add('revealed'); });
+  }
+
+  // Page-load entrance — adds .loaded shortly after paint so the transition
+  // above actually plays, rather than starting in its final state
+  var loadRevealables = document.querySelectorAll('[data-load-reveal]');
+  if (loadRevealables.length) {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        loadRevealables.forEach(function (el) { el.classList.add('loaded'); });
+      });
+    });
+  }
+
+  // Count-up — animates any ".count-up" element with a data-count target
+  // from 0 up to that number once it scrolls into view
+  var counters = document.querySelectorAll('.count-up');
+  if (counters.length) {
+    var animateCount = function (el) {
+      var target = parseInt(el.getAttribute('data-count'), 10) || 0;
+      var duration = 900;
+      var start = null;
+      var step = function (ts) {
+        if (start === null) start = ts;
+        var progress = Math.min((ts - start) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target);
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target;
+      };
+      requestAnimationFrame(step);
+    };
+    if ('IntersectionObserver' in window) {
+      var countObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            animateCount(entry.target);
+            countObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.4 });
+      counters.forEach(function (el) { countObserver.observe(el); });
+    } else {
+      counters.forEach(function (el) { el.textContent = el.getAttribute('data-count'); });
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+{% extends "admin/core/dashboard_base.html" %}
+
+{% block title %}{% if instance %}Edit Salary{% else %}Record a Salary{% endif %} — Dashboard{% endblock %}
+{% block crumb %}Teacher Salaries{% endblock %}
+
+{% block content %}
+<a href="{% if instance %}{% url 'admin:core_teachersalary_view' instance.pk %}{% else %}{% url 'admin:core_teachersalary_changelist' %}{% endif %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  {% if instance %}Back to Salary Record{% else %}Back to Teacher Salaries{% endif %}
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{% if instance %}Edit Salary{% else %}Record a Salary{% endif %}</h1>
+    {% if locked_teacher %}
+    <p class="page-sub">For {{ locked_teacher.full_name }}</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel form-card form-card-wide">
+  {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+    <div class="form-error" style="margin-bottom: 16px;">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-grid">
+      {% if locked_teacher %}
+      {{ form.teacher }}
+      <div class="form-field full-width">
+        <span class="form-label">Faculty</span>
+        <div class="code-badge">{{ locked_teacher.full_name }}</div>
+      </div>
+      {% else %}
+      <div class="form-field full-width">
+        <label class="form-label" for="{{ form.teacher.id_for_label }}">Faculty</label>
+        {{ form.teacher }}
+        {% if form.teacher.errors %}<div class="form-error">{{ form.teacher.errors.0 }}</div>{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="form-field">
+        <label class="form-label" for="{{ form.salary_month.id_for_label }}">Salary Month</label>
+        {{ form.salary_month }}
+        {% if form.salary_month.errors %}<div class="form-error">{{ form.salary_month.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="{{ form.amount.id_for_label }}">Amount (৳)</label>
+        {{ form.amount }}
+        {% if form.amount.errors %}<div class="form-error">{{ form.amount.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="{{ form.status.id_for_label }}">Status</label>
+        {{ form.status }}
+        {% if form.status.errors %}<div class="form-error">{{ form.status.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="{{ form.payment_date.id_for_label }}">Payment Date</label>
+        {{ form.payment_date }}
+        <p class="form-help">{{ form.payment_date.help_text }}</p>
+        {% if form.payment_date.errors %}<div class="form-error">{{ form.payment_date.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="form-field full-width">
+        <label class="form-label" for="{{ form.remarks.id_for_label }}">Remarks</label>
+        {{ form.remarks }}
+        {% if form.remarks.errors %}<div class="form-error">{{ form.remarks.errors.0 }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-accent">{% if instance %}Save Changes{% else %}Save Salary{% endif %}</button>
+      <a href="{% if instance %}{% url 'admin:core_teachersalary_view' instance.pk %}{% else %}{% url 'admin:core_teachersalary_changelist' %}{% endif %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

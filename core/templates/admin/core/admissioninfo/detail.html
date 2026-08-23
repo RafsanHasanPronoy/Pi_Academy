@@ -1,0 +1,69 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}{{ instance.title }} — Dashboard{% endblock %}
+{% block crumb %}{{ instance.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+  }
+  .detail-item { display: flex; flex-direction: column; gap: 4px; }
+  .detail-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .detail-value { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_admissioninfo_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+  Back to Admission Info
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ instance.title }}</h1>
+    <p class="page-sub">{% if instance.is_active %}Active{% else %}Inactive{% endif %}</p>
+  </div>
+  <div class="row-actions">
+    <a href="{% url 'admin:core_admissioninfo_change' instance.id %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Edit
+    </a>
+  </div>
+</div>
+
+<div class="panel" style="padding:28px;">
+  <div class="detail-grid" style="margin-bottom:24px;">
+    <div class="detail-item">
+      <span class="detail-label">Status</span>
+      <span class="detail-value"><span class="pill">{% if instance.is_active %}Active{% else %}Inactive{% endif %}</span></span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Admission Fee</span>
+      <span class="detail-value">{% if instance.admission_fee %}৳{{ instance.admission_fee }}{% else %}—{% endif %}</span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Monthly Fee</span>
+      <span class="detail-value">{% if instance.monthly_fee %}৳{{ instance.monthly_fee }}{% else %}—{% endif %}</span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Duration</span>
+      <span class="detail-value">{{ instance.duration|default:"—" }}</span>
+    </div>
+  </div>
+  <p class="section-heading" style="font-size:1rem; font-weight:700; margin:0 0 10px;">Description</p>
+  {% if instance.description %}
+  <p style="white-space:pre-line;">{{ instance.description }}</p>
+  {% else %}
+  <p style="color:var(--muted);">No description added.</p>
+  {% endif %}
+</div>
+{% endblock %}

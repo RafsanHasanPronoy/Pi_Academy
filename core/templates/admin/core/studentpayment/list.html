@@ -1,0 +1,119 @@
+{% extends "admin/core/dashboard_base.html" %}
+
+{% block title %}Student Payments — Dashboard{% endblock %}
+{% block crumb %}Student Payments{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Student Payments</h1>
+    <p class="page-sub">{{ total_count }} payment{{ total_count|pluralize }} found &middot; ৳{{ total_amount|floatformat:2 }} total</p>
+  </div>
+  <div class="row-actions">
+    <a href="{% url 'admin:core_studentpayment_monthly_status' %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18"/><path d="m8.5 14 2 2 4-4"/></svg>
+      Monthly Fee Status
+    </a>
+    <a href="{% url 'admin:core_studentpayment_add' %}" class="btn btn-accent">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+      Record a Payment
+    </a>
+  </div>
+</div>
+
+<div class="panel" style="padding: 18px 22px; margin-bottom: 20px;">
+  <form method="get" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+    <div style="flex: 2; min-width: 200px;">
+      <label class="form-label" for="id_q">Search student</label>
+      <input type="text" id="id_q" name="q" value="{{ search_query }}" placeholder="Name or student ID">
+    </div>
+    <div style="flex: 1; min-width: 160px;">
+      <label class="form-label" for="id_payment_type">Payment type</label>
+      <select id="id_payment_type" name="payment_type">
+        <option value="">All types</option>
+        {% for value, label in payment_types %}
+        <option value="{{ value }}" {% if active_payment_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div style="flex: 1; min-width: 140px;">
+      <label class="form-label" for="id_from">From</label>
+      <input type="date" id="id_from" name="from" value="{{ date_from }}">
+    </div>
+    <div style="flex: 1; min-width: 140px;">
+      <label class="form-label" for="id_to">To</label>
+      <input type="date" id="id_to" name="to" value="{{ date_to }}">
+    </div>
+    <div class="row-actions">
+      <button type="submit" class="btn btn-accent btn-sm">Filter</button>
+      <a href="{% url 'admin:core_studentpayment_changelist' %}" class="btn btn-ghost btn-sm">Clear</a>
+    </div>
+  </form>
+</div>
+
+<div class="panel">
+  {% if payments %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Payment Date</th>
+        <th>For Month</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for payment in payments %}
+      <tr>
+        <td>
+          <div style="font-weight:600;">{{ payment.student.full_name }}</div>
+          <div style="font-size:0.8rem; color:var(--muted);">{{ payment.student.student_code }}</div>
+        </td>
+        <td><span class="pill">{{ payment.payment_type }}</span></td>
+        <td style="font-weight:700;">৳{{ payment.amount|floatformat:2 }}</td>
+        <td>{{ payment.payment_date|date:"d M Y" }}</td>
+        <td>{% if payment.payment_month %}{{ payment.payment_month|date:"F Y" }}{% else %}&mdash;{% endif %}</td>
+        <td>
+          <div class="row-actions">
+            <a href="{% url 'admin:core_studentpayment_view' payment.pk %}" class="btn btn-ghost btn-sm">View</a>
+            <a href="{% url 'admin:core_studentpayment_change' payment.pk %}" class="btn btn-ghost btn-sm">Edit</a>
+            <a href="{% url 'admin:core_studentpayment_receipt' payment.pk %}" target="_blank" class="btn btn-ghost btn-sm">Receipt</a>
+            <form method="post" action="{% url 'admin:core_studentpayment_delete' payment.pk %}" onsubmit="return confirm('Delete this payment record? This cannot be undone.');" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10.5h19"/></svg>
+    <p>No payments match these filters.</p>
+    <a href="{% url 'admin:core_studentpayment_add' %}" class="btn btn-accent btn-sm" style="margin-top:10px;">Record a Payment</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="row-actions" style="justify-content:center; margin-top:22px;">
+  {% if page_obj.has_previous %}
+  <a class="btn btn-ghost btn-sm" href="?{% if preserved_querystring %}{{ preserved_querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+  {% endif %}
+  {% for p in page_range %}
+    {% if p %}
+      <a class="btn {% if p == page_obj.number %}btn-accent{% else %}btn-ghost{% endif %} btn-sm" href="?{% if preserved_querystring %}{{ preserved_querystring }}&{% endif %}page={{ p }}">{{ p }}</a>
+    {% else %}
+      <span style="padding: 0 4px; color: var(--muted);">&hellip;</span>
+    {% endif %}
+  {% endfor %}
+  {% if page_obj.has_next %}
+  <a class="btn btn-ghost btn-sm" href="?{% if preserved_querystring %}{{ preserved_querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

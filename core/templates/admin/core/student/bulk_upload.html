@@ -1,0 +1,86 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}Bulk Upload Students — Dashboard{% endblock %}
+{% block crumb %}Bulk Upload Students{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_student_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+  Back to Students
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Bulk Upload Students</h1>
+    <p class="page-sub">Add many students at once from an Excel file</p>
+  </div>
+</div>
+
+<div class="panel form-card" style="margin-bottom:28px;">
+  <p class="form-label" style="margin-bottom:12px;">Step 1 — Download the template</p>
+  <p style="font-size:0.9rem; color:var(--muted); margin:0 0 16px;">
+    Fill in one row per student below the header row. Class Name and Academic Year must match an existing class exactly (e.g. "Class 6" and 2026). Batch Name is optional — leave it blank if the student isn't in a batch yet.
+  </p>
+  <a href="{% url 'admin:core_student_bulk_template' %}" class="btn btn-ghost">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+    Download template (.xlsx)
+  </a>
+</div>
+
+<div class="panel form-card">
+  <p class="form-label" style="margin-bottom:12px;">Step 2 — Upload your filled-in file</p>
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    <div class="form-field">
+      <input type="file" name="excel_file" accept=".xlsx" required>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-accent">Upload and enroll</button>
+    </div>
+  </form>
+</div>
+
+{% if results %}
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:28px 0 14px;">Results</p>
+
+{% if results.created_count %}
+<div class="msg" style="margin-bottom:14px;">
+  {{ results.created_count }} student{{ results.created_count|pluralize }} enrolled successfully.
+</div>
+{% endif %}
+
+{% if results.created %}
+<div class="panel" style="margin-bottom:20px;">
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Student ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for name, code in results.created %}
+      <tr>
+        <td style="font-weight:600;">{{ name }}</td>
+        <td><span class="pill">{{ code }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% if results.errors %}
+<div class="panel" style="padding:20px 24px;">
+  <p style="font-weight:700; color:var(--danger); margin:0 0 12px;">
+    {{ results.errors|length }} row{{ results.errors|length|pluralize }} skipped
+  </p>
+  <ul style="margin:0; padding-left:20px; font-size:0.9rem; color:var(--text);">
+    {% for error in results.errors %}
+    <li style="margin-bottom:6px;">{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endif %}
+
+{% endblock %}

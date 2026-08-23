@@ -1,0 +1,239 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}{{ instance.full_name }} — Dashboard{% endblock %}
+{% block crumb %}{{ instance.full_name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .stat-card-icon {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--accent-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stat-card-icon svg { width: 21px; height: 21px; }
+  .stat-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 4px;
+  }
+  .stat-value { font-size: 1.55rem; font-weight: 700; color: var(--text); line-height: 1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_faculty_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+  Back to Faculty
+</a>
+
+<div class="page-header">
+  <div style="display:flex; align-items:center; gap:16px;">
+    {% if instance.photo_url %}
+    <button type="button"
+            onclick="openFacultyPhoto('{{ instance.photo_url|escapejs }}', '{{ instance.full_name|escapejs }}')"
+            style="position:relative; width:64px; height:64px; border-radius:50%; flex-shrink:0; padding:0; border:1px solid var(--border); cursor:zoom-in; overflow:hidden; background:none;"
+            aria-label="View full-size photo of {{ instance.full_name }}">
+      <img src="{{ instance.photo_url }}" alt="{{ instance.full_name }}"
+           style="width:100%; height:100%; object-fit:cover; display:block;">
+    </button>
+    {% else %}
+    <div style="width:64px; height:64px; border-radius:50%; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.6"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-4 3.5-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg>
+    </div>
+    {% endif %}
+    <div>
+      <h1 class="page-title">{{ instance.full_name }}</h1>
+      <p class="page-sub">{{ instance.designation|default:"No designation set" }}{% if instance.joining_date %} · Joined {{ instance.joining_date }}{% endif %}</p>
+    </div>
+  </div>
+  <div class="row-actions">
+    <a href="{% url 'admin:core_teachersalary_add' %}?teacher={{ instance.id }}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Record Salary
+    </a>
+    <a href="{% url 'admin:core_faculty_change' instance.id %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Edit
+    </a>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <span class="stat-card-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15.5" rx="1.2"/><path d="M3.5 10h17"/><path d="M8 3v4M16 3v4"/></svg>
+    </span>
+    <div>
+      <p class="stat-label">Weekly classes</p>
+      <p class="stat-value">{{ schedule|length }}</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <span class="stat-card-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10h16M6 5.5h12a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7.5a2 2 0 0 1 2-2z"/></svg>
+    </span>
+    <div>
+      <p class="stat-label">Salary records</p>
+      <p class="stat-value">{{ salaries|length }}</p>
+    </div>
+  </div>
+</div>
+
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:0 0 14px;">Contact</p>
+<div class="panel" style="margin-bottom:34px;">
+  <table class="dash-table">
+    <tbody>
+      <tr>
+        <td style="font-weight:600; width:180px;">Phone</td>
+        <td>{{ instance.phone|default:"—" }}</td>
+      </tr>
+      <tr>
+        <td style="font-weight:600;">Email</td>
+        <td>{{ instance.email|default:"—" }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:0 0 14px;">Teaching schedule</p>
+<div class="panel" style="margin-bottom:34px;">
+  {% if schedule %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Time</th>
+        <th>Subject</th>
+        <th>Class / Batch</th>
+        <th>Room</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in schedule %}
+      <tr>
+        <td style="font-weight:600;">{{ entry.day_of_week }}</td>
+        <td>{{ entry.start_time|time:"g:i A" }} – {{ entry.end_time|time:"g:i A" }}</td>
+        <td>{{ entry.subject.subject_name }}</td>
+        <td>{{ entry.batch.class_obj.class_name }} — {{ entry.batch.batch_name }}</td>
+        <td>{{ entry.batch.room|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <p>No classes scheduled for this faculty member yet.</p>
+  </div>
+  {% endif %}
+</div>
+
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:0 0 14px;">Salary history</p>
+<div class="panel">
+  {% if salaries %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Month</th>
+        <th>Amount</th>
+        <th>Payment date</th>
+        <th>Status</th>
+        <th style="width:180px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in salaries %}
+      <tr>
+        <td style="font-weight:600;">{{ s.salary_month|date:"F Y" }}</td>
+        <td>৳{{ s.amount|floatformat:2 }}</td>
+        <td>{{ s.payment_date|default:"—" }}</td>
+        <td><span class="pill">{{ s.status }}</span></td>
+        <td>
+          <div class="row-actions">
+            <a href="{% url 'admin:core_teachersalary_change' s.pk %}" class="btn btn-ghost btn-sm">Edit</a>
+            {% if s.status == "Paid" %}
+            <a href="{% url 'admin:core_teachersalary_receipt' s.pk %}" target="_blank" class="btn btn-ghost btn-sm">Receipt</a>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <p>No salary records for this faculty member yet.</p>
+    <a href="{% url 'admin:core_teachersalary_add' %}?teacher={{ instance.id }}" class="btn btn-accent btn-sm" style="margin-top:10px;">Record Salary</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if instance.photo_url %}
+<!-- Photo lightbox: click the avatar above to view it full-size -->
+<div id="facultyPhotoLightbox"
+     style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity 0.25s ease;">
+  <button type="button" id="facultyPhotoLightboxClose" aria-label="Close"
+          style="position:absolute; top:24px; right:24px; width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,0.12); border:none; color:#fff; font-size:1.5rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+    &times;
+  </button>
+  <div id="facultyPhotoLightboxInner" style="max-width:90vw; max-height:90vh; display:flex; flex-direction:column; align-items:center; transform:scale(0.95); transition:transform 0.25s ease;">
+    <img id="facultyPhotoLightboxImg" src="" alt="" style="max-width:100%; max-height:80vh; object-fit:contain; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+    <p id="facultyPhotoLightboxCaption" style="color:#fff; margin-top:14px; font-weight:600;"></p>
+  </div>
+</div>
+
+<script>
+  function openFacultyPhoto(src, caption) {
+    var lb = document.getElementById('facultyPhotoLightbox');
+    var inner = document.getElementById('facultyPhotoLightboxInner');
+    var img = document.getElementById('facultyPhotoLightboxImg');
+    var cap = document.getElementById('facultyPhotoLightboxCaption');
+    img.src = src;
+    img.alt = caption;
+    cap.textContent = caption;
+    lb.style.opacity = '1';
+    lb.style.pointerEvents = 'auto';
+    inner.style.transform = 'scale(1)';
+    document.body.style.overflow = 'hidden';
+  }
+  function closeFacultyPhoto() {
+    var lb = document.getElementById('facultyPhotoLightbox');
+    var inner = document.getElementById('facultyPhotoLightboxInner');
+    lb.style.opacity = '0';
+    lb.style.pointerEvents = 'none';
+    inner.style.transform = 'scale(0.95)';
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    var lb = document.getElementById('facultyPhotoLightbox');
+    if (!lb) return;
+    lb.addEventListener('click', function (e) { if (e.target === lb) closeFacultyPhoto(); });
+    document.getElementById('facultyPhotoLightboxClose').addEventListener('click', closeFacultyPhoto);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeFacultyPhoto(); });
+  });
+</script>
+{% endif %}
+{% endblock %}

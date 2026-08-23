@@ -1,0 +1,57 @@
+{% extends "admin/core/dashboard_base.html" %}
+
+{% block title %}Salary — {{ instance.teacher.full_name }} — Dashboard{% endblock %}
+{% block crumb %}Teacher Salaries{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_teachersalary_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  Back to Teacher Salaries
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ instance.teacher.full_name }} &mdash; {{ instance.salary_month|date:"F Y" }}</h1>
+    <p class="page-sub"><span class="pill">{{ instance.status }}</span></p>
+  </div>
+  <div class="row-actions">
+    {% if instance.status == "Paid" %}
+    <a href="{% url 'admin:core_teachersalary_receipt' instance.pk %}" target="_blank" class="btn btn-ghost">View Receipt</a>
+    {% endif %}
+    <a href="{% url 'admin:core_teachersalary_change' instance.pk %}" class="btn btn-accent">Edit</a>
+    <form method="post" action="{% url 'admin:core_teachersalary_delete' instance.pk %}" onsubmit="return confirm('Delete this salary record? This cannot be undone.');" style="margin:0;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+  </div>
+</div>
+
+<div class="panel" style="padding: 28px 32px;">
+  <div class="form-grid">
+    <div class="form-field">
+      <span class="form-label">Faculty</span>
+      <div>
+        <a href="{% url 'admin:core_faculty_view' instance.teacher.pk %}">{{ instance.teacher.full_name }}</a>
+      </div>
+    </div>
+    <div class="form-field">
+      <span class="form-label">Salary Month</span>
+      <div>{{ instance.salary_month|date:"F Y" }}</div>
+    </div>
+
+    <div class="form-field">
+      <span class="form-label">Amount</span>
+      <div class="code-badge">৳{{ instance.amount|floatformat:2 }}</div>
+    </div>
+    <div class="form-field">
+      <span class="form-label">Payment Date</span>
+      <div>{{ instance.payment_date|date:"d M Y"|default:"— not yet paid" }}</div>
+    </div>
+
+    <div class="form-field full-width">
+      <span class="form-label">Remarks</span>
+      <div>{{ instance.remarks|default:"—"|linebreaksbr }}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

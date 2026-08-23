@@ -1,0 +1,34 @@
+{% extends "core/base.html" %}
+{% block title %}Achievements — Pi - π Academy{% endblock %}
+
+{% block content %}
+<section data-reveal class="max-w-6xl mx-auto px-6 pt-16 pb-8">
+  <p class="eyebrow mb-3">Proof of Work</p>
+  <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Achievements</h1>
+</section>
+
+<div class="ruler-divider"></div>
+
+<section data-reveal class="max-w-6xl mx-auto px-6 py-16">
+  {% if achievements %}
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 stagger">
+    {% for a in achievements %}
+    <div data-reveal class="border border-hair p-7 card-lift">
+      {% if a.image_url %}
+      <img src="{{ a.image_url }}" alt="{{ a.title }}" class="w-full h-40 object-cover mb-5">
+      {% endif %}
+      {% if a.achievement_date %}
+      <p class="text-xs text-muted mb-2">{{ a.achievement_date|date:"d M Y" }}</p>
+      {% endif %}
+      <h3 class="font-bold mb-2 flex items-start"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>{{ a.title }}</h3>
+      {% if a.description %}
+      <p class="text-sm text-muted leading-relaxed">{{ a.description }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">No achievements published yet — check back soon.</p>
+  {% endif %}
+</section>
+{% endblock %}

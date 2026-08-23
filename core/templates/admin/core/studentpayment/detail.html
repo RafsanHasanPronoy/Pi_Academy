@@ -1,0 +1,65 @@
+{% extends "admin/core/dashboard_base.html" %}
+
+{% block title %}Payment — {{ instance.student.full_name }} — Dashboard{% endblock %}
+{% block crumb %}Student Payments{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_studentpayment_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  Back to Student Payments
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ instance.student.full_name }} &mdash; {{ instance.payment_type }}</h1>
+    <p class="page-sub">{{ instance.student.student_code }} &middot; Recorded {{ instance.payment_date|date:"d M Y" }}</p>
+  </div>
+  <div class="row-actions">
+    <a href="{% url 'admin:core_studentpayment_receipt' instance.pk %}" target="_blank" class="btn btn-ghost">View Receipt</a>
+    <a href="{% url 'admin:core_studentpayment_change' instance.pk %}" class="btn btn-accent">Edit Payment</a>
+    <form method="post" action="{% url 'admin:core_studentpayment_delete' instance.pk %}" onsubmit="return confirm('Delete this payment record? This cannot be undone.');" style="margin:0;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+  </div>
+</div>
+
+<div class="panel" style="padding: 28px 32px;">
+  <div class="form-grid">
+    <div class="form-field">
+      <span class="form-label">Student</span>
+      <div>
+        <a href="{% url 'admin:core_student_view' instance.student.pk %}">{{ instance.student.full_name }}</a>
+        <span style="color:var(--muted);">({{ instance.student.student_code }})</span>
+      </div>
+    </div>
+    <div class="form-field">
+      <span class="form-label">Class / Batch</span>
+      <div>{{ instance.student.class_obj.class_name }}{% if instance.student.batch %} &mdash; {{ instance.student.batch.batch_name }}{% endif %}</div>
+    </div>
+
+    <div class="form-field">
+      <span class="form-label">Payment Type</span>
+      <div><span class="pill">{{ instance.payment_type }}</span></div>
+    </div>
+    <div class="form-field">
+      <span class="form-label">Amount</span>
+      <div class="code-badge">৳{{ instance.amount|floatformat:2 }}</div>
+    </div>
+
+    <div class="form-field">
+      <span class="form-label">Payment Date</span>
+      <div>{{ instance.payment_date|date:"d M Y" }}</div>
+    </div>
+    <div class="form-field">
+      <span class="form-label">For Month</span>
+      <div>{% if instance.payment_month %}{{ instance.payment_month|date:"F Y" }}{% else %}&mdash; not applicable{% endif %}</div>
+    </div>
+
+    <div class="form-field full-width">
+      <span class="form-label">Remarks</span>
+      <div>{{ instance.remarks|default:"—"|linebreaksbr }}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

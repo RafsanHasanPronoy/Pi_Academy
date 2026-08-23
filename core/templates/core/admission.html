@@ -1,0 +1,90 @@
+{% extends "core/base.html" %}
+{% block title %}Admission — Pi - π Academy{% endblock %}
+
+{% block content %}
+<section data-reveal class="max-w-6xl mx-auto px-6 pt-16 pb-12">
+  <p class="eyebrow mb-3">Admission</p>
+  <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Apply for Admission</h1>
+  <p class="mt-5 text-lg text-muted max-w-2xl leading-relaxed">
+    Fill out the form below and our admissions team will call you within
+    24 hours to confirm a class and batch.
+  </p>
+</section>
+
+{% if admission_infos %}
+<section data-reveal class="max-w-6xl mx-auto px-6 pb-16">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 stagger">
+    {% for info in admission_infos %}
+    <div data-reveal class="border border-hair p-7 card-lift">
+      <h3 class="text-xl font-bold mb-2">{{ info.title }}</h3>
+      {% if info.description %}
+      <p class="text-sm text-muted mb-5 leading-relaxed">{{ info.description }}</p>
+      {% endif %}
+      <div class="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+        {% if info.admission_fee %}
+        <div><span class="text-muted">Admission Fee</span><br>
+          <span class="font-bold">&#2547;{{ info.admission_fee }}</span></div>
+        {% endif %}
+        {% if info.monthly_fee %}
+        <div><span class="text-muted">Monthly Fee</span><br>
+          <span class="font-bold">&#2547;{{ info.monthly_fee }}</span></div>
+        {% endif %}
+        {% if info.duration %}
+        <div><span class="text-muted">Duration</span><br>
+          <span class="font-bold">{{ info.duration }}</span></div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<div class="ruler-divider"></div>
+
+<section data-reveal class="max-w-6xl mx-auto px-6 py-16">
+  <div class="max-w-2xl mx-auto">
+    <h2 class="text-2xl font-bold mb-8 flex items-center"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>Admission Inquiry Form</h2>
+    <form method="post" class="space-y-5" novalidate>
+      {% csrf_token %}
+
+      <!-- Honeypot: rendered once, outside the visible field loop below.
+           Real users never see or fill this in; bots that auto-fill
+           every input on the page will, and get silently rejected in
+           AdmissionInquiryForm.clean_website(). -->
+      <div class="hidden" aria-hidden="true">
+        {{ form.website.label_tag }}
+        {{ form.website }}
+      </div>
+
+      {% for field in form %}
+      {% if field.name != "website" %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-sm font-bold mb-1.5">
+          {{ field.label }}{% if field.field.required %} <span class="text-brand">*</span>{% endif %}
+        </label>
+        {{ field }}
+        {% if field.help_text %}<p class="text-xs text-muted mt-1">{{ field.help_text }}</p>{% endif %}
+        {% for error in field.errors %}
+        <p class="text-xs text-brand mt-1 font-semibold">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endfor %}
+
+      {% if form.non_field_errors %}
+      <div class="border-l-4 border-brand bg-brand/5 px-5 py-4 text-sm font-semibold">
+        {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <button type="submit"
+              class="btn btn-primary w-full text-center">
+        Submit Inquiry
+      </button>
+    </form>
+  </div>
+</section>
+{% endblock %}

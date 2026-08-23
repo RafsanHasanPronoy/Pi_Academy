@@ -1,0 +1,316 @@
+from io import BytesIO
+
+import openpyxl
+from django.contrib import admin
+from django.core.cache import cache
+from django.test import TestCase, override_settings
+from django.urls import reverse
+
+from .admin import ExamResultAdmin, StudentAdmin
+from .forms import AdmissionInquiryForm, ContactMessageForm, StudentLookupForm
+from .models import (
+    Attendance, Batch, Class, Exam, ExamResult, Student, Subject,
+)
+
+
+def _make_xlsx(headers, rows):
+    """Builds an in-memory .xlsx matching what a real upload looks like,
+    so these tests exercise the same openpyxl parsing path as a real
+    file — not a shortcut that skips it."""
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.append(headers)
+    for row in rows:
+        sheet.append(row)
+    buffer = BytesIO()
+    workbook.save(buffer)
+    buffer.seek(0)
+    return buffer
+
+
+class ContactMessageFormTests(TestCase):
+    def test_rejects_when_no_phone_and_no_email(self):
+        form = ContactMessageForm(data={
+            "name": "Rafsan",
+            "phone": "",
+            "email": "",
+            "message": "Hello",
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn("__all__", form.errors)
+
+    def test_valid_with_phone_only(self):
+        form = ContactMessageForm(data={
+            "name": "Rafsan",
+            "phone": "01700000000",
+            "email": "",
+            "message": "Hello",
+        })
+        self.assertTrue(form.is_valid())
+
+    def test_honeypot_rejects_bot_submission(self):
+        form = ContactMessageForm(data={
+            "name": "Bot",
+            "phone": "01700000000",
+            "email": "",
+            "message": "spam",
+            "website": "http://spam.example",  # a human never fills this in
+        })
+        self.assertFalse(form.is_valid())
+
+
+class AdmissionInquiryFormTests(TestCase):
+    def test_minimal_valid_submission(self):
+        form = AdmissionInquiryForm(data={
+            "student_name": "Test Student",
+            "student_phone": "01700000000",
+            "guardian_name": "",
+            "guardian_phone": "",
+            "class_obj": "",
+            "message": "",
+        })
+        self.assertTrue(form.is_valid())
+
+    def test_honeypot_rejects_bot_submission(self):
+        form = AdmissionInquiryForm(data={
+            "student_name": "Bot Student",
+            "student_phone": "01700000000",
+            "website": "http://spam.example",
+        })
+        self.assertFalse(form.is_valid())
+
+
+class StudentResultsRateLimitTests(TestCase):
+    """
+    Covers the fix for the brute-force lookup risk flagged in QA: after
+    the rate limit is hit, further POSTs must be blocked rather than
+    silently allowed through.
+    """
+
+    def setUp(self):
+        cache.clear()
+        self.url = reverse("results")
+        self.klass = Class.objects.create(class_name="Class 9", academic_year=2026)
+        self.batch = Batch.objects.create(class_obj=self.klass, batch_name="Morning")
+        self.student = Student.objects.create(
+            student_code="STU-2026-001",
+            class_obj=self.klass,
+            batch=self.batch,
+            full_name="Test Student",
+            student_phone="01700000000",
+        )
+
+    @override_settings(RATELIMIT_ENABLE=True)
+    def test_blocked_after_rate_limit_exceeded(self):
+        payload = {"student_code": "WRONG-CODE", "student_phone": "0000000000"}
+        responses = [self.client.post(self.url, payload) for _ in range(6)]
+        # The 6th attempt within a minute from the same client should be
+        # blocked (django-ratelimit raises Ratelimited -> 403 by default).
+        self.assertEqual(responses[-1].status_code, 403)
+
+    def test_correct_credentials_return_student_data(self):
+        response = self.client.post(self.url, {
+            "student_code": "STU-2026-001",
+            "student_phone": "01700000000",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test Student")
+
+    def test_wrong_credentials_do_not_leak_which_field_was_wrong(self):
+        response = self.client.post(self.url, {
+            "student_code": "STU-2026-001",
+            "student_phone": "09999999999",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Test Student")
+
+
+class DashboardOrderingTests(TestCase):
+    """Achievements with no date shouldn't unpredictably jump to the top."""
+
+    def test_null_dates_sort_last(self):
+        from .models import Achievement
+
+        Achievement.objects.create(title="Dated", is_published=True, achievement_date="2026-01-01")
+        Achievement.objects.create(title="Undated", is_published=True, achievement_date=None)
+
+        response = self.client.get(reverse("achievements"))
+        content = response.content.decode()
+        self.assertLess(content.index("Dated"), content.index("Undated"))
+
+
+class StudentBulkUploadTests(TestCase):
+    """
+    Covers StudentAdmin._process_bulk_upload — the spreadsheet-parsing
+    path flagged in QA as the highest silent-failure risk in the admin,
+    since a malformed row can otherwise fail quietly with nothing to
+    catch it.
+    """
+
+    HEADERS = [
+        "Full Name", "Class Name", "Academic Year", "Batch Name", "Gender",
+        "Date of Birth (YYYY-MM-DD)", "Student Phone", "Father's Name",
+        "Father's Phone", "Mother's Name", "Mother's Phone", "Address",
+        "Admission Date (YYYY-MM-DD)", "Status",
+    ]
+
+    def setUp(self):
+        self.admin = StudentAdmin(Student, admin.site)
+        self.klass = Class.objects.create(class_name="Class 6", academic_year=2026)
+        self.batch = Batch.objects.create(class_obj=self.klass, batch_name="Morning")
+
+    def test_valid_row_creates_student_with_generated_code(self):
+        upload = _make_xlsx(self.HEADERS, [[
+            "Jane Doe", "Class 6", 2026, "Morning", "Female",
+            "2014-05-12", "01700000000", "John Doe", "01700000001",
+            "Mary Doe", "01700000002", "House 12, Road 4", "2026-01-10", "Active",
+        ]])
+        result = self.admin._process_bulk_upload(upload)
+        self.assertEqual(result["created_count"], 1)
+        self.assertEqual(result["errors"], [])
+        student = Student.objects.get(full_name="Jane Doe")
+        self.assertTrue(student.student_code.startswith("PiC6"))
+
+    def test_missing_full_name_is_skipped_with_error_not_silently(self):
+        upload = _make_xlsx(self.HEADERS, [[
+            "", "Class 6", 2026, "Morning", "Female",
+            "2014-05-12", "01700000000", "", "", "", "", "", "", "Active",
+        ]])
+        result = self.admin._process_bulk_upload(upload)
+        self.assertEqual(result["created_count"], 0)
+        self.assertEqual(Student.objects.count(), 0)
+        self.assertTrue(any("missing Full Name" in e for e in result["errors"]))
+
+    def test_unknown_class_is_skipped_with_error(self):
+        upload = _make_xlsx(self.HEADERS, [[
+            "Jane Doe", "Class 99", 2026, "", "Female",
+            "", "", "", "", "", "", "", "", "Active",
+        ]])
+        result = self.admin._process_bulk_upload(upload)
+        self.assertEqual(result["created_count"], 0)
+        self.assertTrue(any("no class matching" in e for e in result["errors"]))
+
+    def test_unknown_batch_is_skipped_with_error(self):
+        upload = _make_xlsx(self.HEADERS, [[
+            "Jane Doe", "Class 6", 2026, "Evening (doesn't exist)", "Female",
+            "", "", "", "", "", "", "", "", "Active",
+        ]])
+        result = self.admin._process_bulk_upload(upload)
+        self.assertEqual(result["created_count"], 0)
+        self.assertTrue(any("no batch matching" in e for e in result["errors"]))
+
+    def test_blank_rows_are_skipped_without_error(self):
+        upload = _make_xlsx(self.HEADERS, [
+            [None] * len(self.HEADERS),
+            ["Jane Doe", "Class 6", 2026, "Morning", "Female",
+             "", "", "", "", "", "", "", "", "Active"],
+        ])
+        result = self.admin._process_bulk_upload(upload)
+        self.assertEqual(result["created_count"], 1)
+        self.assertEqual(result["errors"], [])
+
+    def test_wrong_headers_are_rejected_before_touching_any_row(self):
+        upload = _make_xlsx(["Wrong", "Headers"], [["a", "b"]])
+        result = self.admin._process_bulk_upload(upload)
+        self.assertEqual(result["created_count"], 0)
+        self.assertTrue(any("don't match the template" in e for e in result["errors"]))
+
+    def test_not_an_excel_file_fails_gracefully(self):
+        garbage = BytesIO(b"this is not a real xlsx file")
+        result = self.admin._process_bulk_upload(garbage)
+        self.assertEqual(result["created_count"], 0)
+        self.assertTrue(result["errors"])  # a friendly message, not a crash
+
+    def test_sequential_rows_in_same_class_and_batch_get_distinct_codes(self):
+        upload = _make_xlsx(self.HEADERS, [
+            ["Student A", "Class 6", 2026, "Morning", "", "", "", "", "", "", "", "", "", "Active"],
+            ["Student B", "Class 6", 2026, "Morning", "", "", "", "", "", "", "", "", "", "Active"],
+        ])
+        result = self.admin._process_bulk_upload(upload)
+        self.assertEqual(result["created_count"], 2)
+        codes = set(Student.objects.values_list("student_code", flat=True))
+        self.assertEqual(len(codes), 2)  # no collision between the two rows
+
+
+class ExamResultBulkUploadTests(TestCase):
+    """
+    Covers ExamResultAdmin._process_bulk_upload — the mark-sheet parser,
+    including the update_or_create re-upload behavior that's easy to
+    accidentally break into duplicate rows or silent overwrites.
+    """
+
+    def setUp(self):
+        self.admin = ExamResultAdmin(ExamResult, admin.site)
+        self.klass = Class.objects.create(class_name="Class 7", academic_year=2026)
+        self.batch = Batch.objects.create(class_obj=self.klass, batch_name="Morning")
+        self.subject = Subject.objects.create(class_obj=self.klass, subject_name="Physics")
+        self.exam = Exam.objects.create(
+            class_obj=self.klass, exam_name="Midterm", exam_date="2026-06-01"
+        )
+        self.student = Student.objects.create(
+            student_code="PiC7B1001", class_obj=self.klass, batch=self.batch,
+            full_name="Test Student",
+        )
+
+    def test_valid_marks_create_exam_result(self):
+        upload = _make_xlsx(
+            ["Student ID", "Full Name", "Physics"],
+            [["PiC7B1001", "Test Student", 85]],
+        )
+        result = self.admin._process_bulk_upload(upload, self.exam)
+        self.assertEqual(result["saved_count"], 1)
+        self.assertEqual(result["errors"], [])
+        er = ExamResult.objects.get(exam=self.exam, student=self.student, subject=self.subject)
+        self.assertEqual(er.marks, 85)
+
+    def test_reuploading_corrected_marks_updates_not_duplicates(self):
+        headers = ["Student ID", "Full Name", "Physics"]
+        first = _make_xlsx(headers, [["PiC7B1001", "Test Student", 60]])
+        self.admin._process_bulk_upload(first, self.exam)
+
+        corrected = _make_xlsx(headers, [["PiC7B1001", "Test Student", 92]])
+        result = self.admin._process_bulk_upload(corrected, self.exam)
+
+        self.assertEqual(result["saved_count"], 1)
+        self.assertEqual(
+            ExamResult.objects.filter(exam=self.exam, student=self.student, subject=self.subject).count(),
+            1,  # updated in place, not a second row
+        )
+        er = ExamResult.objects.get(exam=self.exam, student=self.student, subject=self.subject)
+        self.assertEqual(er.marks, 92)
+
+    def test_unrecognized_subject_column_is_flagged_not_silently_dropped(self):
+        upload = _make_xlsx(
+            ["Student ID", "Full Name", "Chemistry"],  # not in this class
+            [["PiC7B1001", "Test Student", 70]],
+        )
+        result = self.admin._process_bulk_upload(upload, self.exam)
+        self.assertEqual(result["saved_count"], 0)
+        self.assertTrue(any("Chemistry" in e for e in result["errors"]))
+
+    def test_non_numeric_marks_are_skipped_with_error(self):
+        upload = _make_xlsx(
+            ["Student ID", "Full Name", "Physics"],
+            [["PiC7B1001", "Test Student", "absent"]],
+        )
+        result = self.admin._process_bulk_upload(upload, self.exam)
+        self.assertEqual(result["saved_count"], 0)
+        self.assertTrue(any("isn't a number" in e for e in result["errors"]))
+
+    def test_negative_marks_are_rejected(self):
+        upload = _make_xlsx(
+            ["Student ID", "Full Name", "Physics"],
+            [["PiC7B1001", "Test Student", -5]],
+        )
+        result = self.admin._process_bulk_upload(upload, self.exam)
+        self.assertEqual(result["saved_count"], 0)
+        self.assertTrue(any("negative" in e for e in result["errors"]))
+
+    def test_unknown_student_id_is_skipped_with_error(self):
+        upload = _make_xlsx(
+            ["Student ID", "Full Name", "Physics"],
+            [["DOES-NOT-EXIST", "Nobody", 70]],
+        )
+        result = self.admin._process_bulk_upload(upload, self.exam)
+        self.assertEqual(result["saved_count"], 0)
+        self.assertTrue(any("no student" in e for e in result["errors"]))

@@ -1,0 +1,51 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}{% if instance %}Edit Faculty{% else %}Add Faculty{% endif %} — Dashboard{% endblock %}
+{% block crumb %}{% if instance %}Edit faculty{% else %}Add faculty{% endif %}{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_faculty_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+  Back to Faculty
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{% if instance %}Edit faculty{% else %}Add faculty{% endif %}</h1>
+    <p class="page-sub">{% if instance %}Update details for {{ instance.full_name }}{% else %}Fill in the details below to add a faculty member{% endif %}</p>
+  </div>
+</div>
+
+<div class="panel form-card">
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% if instance and instance.photo_url %}
+    <div class="form-field" style="margin-bottom:10px; display:flex; align-items:center; gap:12px;">
+      <img src="{{ instance.photo_url }}" alt="{{ instance.full_name }}"
+           style="width:72px; height:72px; border-radius:50%; object-fit:cover; border:1px solid var(--border);">
+      <span style="font-size:0.82rem; color:var(--muted);">Current photo — upload a new one below to replace it.</span>
+    </div>
+    {% endif %}
+    {% for field in form %}
+    <div class="form-field">
+      <label for="{{ field.id_for_label }}" class="form-label">
+        {{ field.label }}{% if field.field.required %} *{% endif %}
+      </label>
+      {{ field }}
+      {% if field.help_text %}
+      <p class="form-help">{{ field.help_text }}</p>
+      {% endif %}
+      {% for error in field.errors %}
+      <p class="form-error">{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endfor %}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-accent">
+        {% if instance %}Save changes{% else %}Add faculty{% endif %}
+      </button>
+      <a href="{% url 'admin:core_faculty_changelist' %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

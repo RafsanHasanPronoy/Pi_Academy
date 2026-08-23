@@ -1,0 +1,230 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}{{ instance.full_name }} — Dashboard{% endblock %}
+{% block crumb %}{{ instance.full_name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 32px;
+  }
+  .detail-row {
+    padding: 13px 0;
+    border-top: 1px solid var(--border);
+  }
+  .detail-row:first-child, .detail-row:nth-child(2) { border-top: none; }
+  .detail-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin: 0 0 4px;
+  }
+  .detail-value { font-size: 0.95rem; color: var(--text); }
+  @media (max-width: 640px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .detail-row:nth-child(2) { border-top: 1px solid var(--border); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_student_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+  Back to Students
+</a>
+
+<div class="page-header">
+  <div style="display:flex; align-items:center; gap:16px;">
+    {% if instance.photo_url %}
+    <button type="button"
+            onclick="openStudentPhoto('{{ instance.photo_url|escapejs }}', '{{ instance.full_name|escapejs }}')"
+            style="position:relative; width:64px; height:64px; border-radius:50%; flex-shrink:0; padding:0; border:1px solid var(--border); cursor:zoom-in; overflow:hidden; background:none;"
+            aria-label="View full-size photo of {{ instance.full_name }}">
+      <img src="{{ instance.photo_url }}" alt="{{ instance.full_name }}"
+           style="width:100%; height:100%; object-fit:cover; display:block;">
+    </button>
+    {% else %}
+    <div style="width:64px; height:64px; border-radius:50%; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.6"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-4 3.5-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg>
+    </div>
+    {% endif %}
+    <div>
+      <h1 class="page-title">{{ instance.full_name }}</h1>
+      <p class="page-sub">
+        <span class="code-badge" style="margin-top:6px; display:inline-flex;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg>
+          {{ instance.student_code }}
+        </span>
+      </p>
+    </div>
+  </div>
+  <div class="row-actions">
+    <a href="{% url 'admin:core_studentpayment_add' %}?student={{ instance.id }}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Record a payment
+    </a>
+    <a href="{% url 'admin:core_student_change' instance.id %}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Edit
+    </a>
+  </div>
+</div>
+
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:0 0 14px;">Class &amp; batch</p>
+<div class="panel" style="padding:6px 22px; margin-bottom:28px;">
+  <div class="detail-grid">
+    <div class="detail-row">
+      <p class="detail-label">Class</p>
+      <p class="detail-value">{{ instance.class_obj.class_name|default:"—" }}</p>
+    </div>
+    <div class="detail-row">
+      <p class="detail-label">Batch</p>
+      <p class="detail-value">{{ instance.batch.batch_name|default:"—" }}</p>
+    </div>
+    <div class="detail-row">
+      <p class="detail-label">Status</p>
+      <p class="detail-value"><span class="pill">{{ instance.status }}</span></p>
+    </div>
+    <div class="detail-row">
+      <p class="detail-label">Admission date</p>
+      <p class="detail-value">{{ instance.admission_date|default:"—" }}</p>
+    </div>
+  </div>
+</div>
+
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:0 0 14px;">Student details</p>
+<div class="panel" style="padding:6px 22px; margin-bottom:28px;">
+  <div class="detail-grid">
+    <div class="detail-row">
+      <p class="detail-label">Gender</p>
+      <p class="detail-value">{{ instance.gender|default:"—" }}</p>
+    </div>
+    <div class="detail-row">
+      <p class="detail-label">Date of birth</p>
+      <p class="detail-value">{{ instance.date_of_birth|default:"—" }}</p>
+    </div>
+    <div class="detail-row">
+      <p class="detail-label">Student's phone</p>
+      <p class="detail-value">{{ instance.student_phone|default:"—" }}</p>
+    </div>
+    <div class="detail-row">
+      <p class="detail-label">Address</p>
+      <p class="detail-value">{{ instance.address|default:"—" }}</p>
+    </div>
+  </div>
+</div>
+
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:0 0 14px;">Guardian details</p>
+<div class="panel" style="padding:6px 22px;">
+  <div class="detail-grid">
+    <div class="detail-row">
+      <p class="detail-label">Father's name</p>
+      <p class="detail-value">{{ instance.father_name|default:"—" }}</p>
+    </div>
+    <div class="detail-row">
+      <p class="detail-label">Father's phone</p>
+      <p class="detail-value">{{ instance.father_phone|default:"—" }}</p>
+    </div>
+    <div class="detail-row">
+      <p class="detail-label">Mother's name</p>
+      <p class="detail-value">{{ instance.mother_name|default:"—" }}</p>
+    </div>
+    <div class="detail-row">
+      <p class="detail-label">Mother's phone</p>
+      <p class="detail-value">{{ instance.mother_phone|default:"—" }}</p>
+    </div>
+  </div>
+</div>
+
+<p class="section-heading" style="font-size:1.1rem; font-weight:700; margin:28px 0 14px;">Payments</p>
+<div class="panel" style="margin-bottom:0;">
+  {% if payments %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Payment Date</th>
+        <th>For Month</th>
+        <th style="width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for payment in payments %}
+      <tr>
+        <td><span class="pill">{{ payment.payment_type }}</span></td>
+        <td style="font-weight:700;">৳{{ payment.amount|floatformat:2 }}</td>
+        <td>{{ payment.payment_date|date:"d M Y" }}</td>
+        <td>{% if payment.payment_month %}{{ payment.payment_month|date:"F Y" }}{% else %}&mdash;{% endif %}</td>
+        <td>
+          <div class="row-actions">
+            <a href="{% url 'admin:core_studentpayment_view' payment.pk %}" class="btn btn-ghost btn-sm">View</a>
+            <a href="{% url 'admin:core_studentpayment_change' payment.pk %}" class="btn btn-ghost btn-sm">Edit</a>
+            <a href="{% url 'admin:core_studentpayment_receipt' payment.pk %}" target="_blank" class="btn btn-ghost btn-sm">Receipt</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div style="padding:14px 22px; border-top:1px solid var(--border); font-size:0.85rem; color:var(--muted);">
+    Total paid: <span style="color:var(--text); font-weight:700;">৳{{ total_paid|floatformat:2 }}</span>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10.5h19"/></svg>
+    <p>No payments recorded for this student yet.</p>
+    <a href="{% url 'admin:core_studentpayment_add' %}?student={{ instance.id }}" class="btn btn-accent btn-sm" style="margin-top:10px;">Record a payment</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if instance.photo_url %}
+<!-- Photo lightbox: click the avatar above to view it full-size -->
+<div id="studentPhotoLightbox"
+     style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity 0.25s ease;">
+  <button type="button" id="studentPhotoLightboxClose" aria-label="Close"
+          style="position:absolute; top:24px; right:24px; width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,0.12); border:none; color:#fff; font-size:1.5rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+    &times;
+  </button>
+  <div id="studentPhotoLightboxInner" style="max-width:90vw; max-height:90vh; display:flex; flex-direction:column; align-items:center; transform:scale(0.95); transition:transform 0.25s ease;">
+    <img id="studentPhotoLightboxImg" src="" alt="" style="max-width:100%; max-height:80vh; object-fit:contain; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+    <p id="studentPhotoLightboxCaption" style="color:#fff; margin-top:14px; font-weight:600;"></p>
+  </div>
+</div>
+
+<script>
+  function openStudentPhoto(src, caption) {
+    var lb = document.getElementById('studentPhotoLightbox');
+    var inner = document.getElementById('studentPhotoLightboxInner');
+    var img = document.getElementById('studentPhotoLightboxImg');
+    var cap = document.getElementById('studentPhotoLightboxCaption');
+    img.src = src;
+    img.alt = caption;
+    cap.textContent = caption;
+    lb.style.opacity = '1';
+    lb.style.pointerEvents = 'auto';
+    inner.style.transform = 'scale(1)';
+    document.body.style.overflow = 'hidden';
+  }
+  function closeStudentPhoto() {
+    var lb = document.getElementById('studentPhotoLightbox');
+    var inner = document.getElementById('studentPhotoLightboxInner');
+    lb.style.opacity = '0';
+    lb.style.pointerEvents = 'none';
+    inner.style.transform = 'scale(0.95)';
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    var lb = document.getElementById('studentPhotoLightbox');
+    if (!lb) return;
+    lb.addEventListener('click', function (e) { if (e.target === lb) closeStudentPhoto(); });
+    document.getElementById('studentPhotoLightboxClose').addEventListener('click', closeStudentPhoto);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeStudentPhoto(); });
+  });
+</script>
+{% endif %}
+{% endblock %}

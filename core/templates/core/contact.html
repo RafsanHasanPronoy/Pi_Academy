@@ -1,0 +1,70 @@
+{% extends "core/base.html" %}
+{% block title %}Contact — Pi - π Academy{% endblock %}
+
+{% block content %}
+<section data-reveal class="max-w-6xl mx-auto px-6 pt-16 pb-12">
+  <p class="eyebrow mb-3">Get in Touch</p>
+  <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Contact Us</h1>
+  <p class="mt-5 text-lg text-muted max-w-2xl leading-relaxed">
+    Questions about classes, batches, or fees? Send a message and we'll
+    reply as soon as we can.
+  </p>
+</section>
+
+<div class="ruler-divider"></div>
+
+<section data-reveal class="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-5 gap-14">
+  <div class="md:col-span-2 space-y-8">
+    <div>
+      <p class="eyebrow mb-2">Location</p>
+      <p class="text-sm text-muted leading-relaxed">Narayanganj, Dhaka, Bangladesh</p>
+    </div>
+    <div>
+      <p class="eyebrow mb-2">Office Hours</p>
+      <p class="text-sm text-muted leading-relaxed">Saturday – Thursday, 9:00 AM – 8:00 PM</p>
+    </div>
+  </div>
+
+  <div class="md:col-span-3">
+    <form method="post" class="space-y-5" novalidate>
+      {% csrf_token %}
+
+      <!-- Honeypot: rendered once, outside the visible field loop below.
+           Real users never see or fill this in; bots that auto-fill
+           every input on the page will, and get silently rejected in
+           ContactMessageForm.clean_website(). -->
+      <div class="hidden" aria-hidden="true">
+        {{ form.website.label_tag }}
+        {{ form.website }}
+      </div>
+
+      {% for field in form %}
+      {% if field.name != "website" %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-sm font-bold mb-1.5">
+          {{ field.label }}{% if field.field.required %} <span class="text-brand">*</span>{% endif %}
+        </label>
+        {{ field }}
+        {% for error in field.errors %}
+        <p class="text-xs text-brand mt-1 font-semibold">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endfor %}
+
+      {% if form.non_field_errors %}
+      <div class="border-l-4 border-brand bg-brand/5 px-5 py-4 text-sm font-semibold">
+        {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <button type="submit"
+              class="btn btn-primary w-full text-center">
+        Send Message
+      </button>
+    </form>
+  </div>
+</section>
+{% endblock %}

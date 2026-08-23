@@ -1,0 +1,137 @@
+{% extends "core/base.html" %}
+{% block title %}Pi - π Academy — Home{% endblock %}
+
+{% block content %}
+
+<section class="relative max-w-6xl mx-auto px-6 pt-20 pb-24 grid grid-cols-1 md:grid-cols-5 gap-12 items-center overflow-hidden">
+  <span class="hidden md:block absolute -right-10 -top-16 text-[16rem] font-display font-bold text-brand/5 select-none pointer-events-none leading-none">&pi;</span>
+  <div class="md:col-span-3 relative load-stagger">
+    <p data-load-reveal class="eyebrow mb-4">Admissions Open</p>
+    <h1 data-load-reveal class="text-5xl md:text-6xl font-bold leading-[1.05] tracking-tight">
+      Every correction<br>
+      is a step <span class="highlight text-brand">forward.</span>
+    </h1>
+    <p data-load-reveal class="mt-6 text-lg text-muted max-w-lg leading-relaxed">
+      Pi runs small, closely-tracked batches with real attendance,
+      real exams, and real feedback — so progress is something you can
+      actually see, not just hope for.
+    </p>
+    <div data-load-reveal class="mt-9 flex flex-wrap gap-4">
+      <a href="{% url 'admission' %}"
+         class="btn btn-primary">
+        Apply for Admission
+      </a>
+      <a href="{% url 'about' %}"
+         class="btn btn-outline">
+        Learn More
+      </a>
+    </div>
+  </div>
+  <div class="md:col-span-2 relative load-stagger">
+    <div data-load-reveal class="border border-hair p-8 bg-white">
+      <p class="eyebrow mb-5">Why Students Stay</p>
+      <ul class="space-y-4 text-sm">
+        <li class="flex items-start"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>Attendance and marks tracked every class</li>
+        <li class="flex items-start"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>Small batches, direct teacher attention</li>
+        <li class="flex items-start"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>Regular exams with real, comparable grading</li>
+        <li class="flex items-start"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>Guardians updated on progress, not left guessing</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="ruler-divider"></div>
+
+{% if admission_infos %}
+<section data-reveal class="max-w-6xl mx-auto px-6 py-20">
+  <p class="eyebrow mb-3">Admission</p>
+  <h2 class="text-3xl font-bold mb-10">Current Programs</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 stagger">
+    {% for info in admission_infos %}
+    <div data-reveal class="border border-hair p-7 card-lift">
+      <h3 class="text-xl font-bold mb-2">{{ info.title }}</h3>
+      {% if info.description %}
+      <p class="text-sm text-muted mb-5 leading-relaxed">{{ info.description }}</p>
+      {% endif %}
+      <div class="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+        {% if info.admission_fee %}
+        <div><span class="text-muted">Admission Fee</span><br>
+          <span class="font-bold">&#2547;{{ info.admission_fee }}</span></div>
+        {% endif %}
+        {% if info.monthly_fee %}
+        <div><span class="text-muted">Monthly Fee</span><br>
+          <span class="font-bold">&#2547;{{ info.monthly_fee }}</span></div>
+        {% endif %}
+        {% if info.duration %}
+        <div><span class="text-muted">Duration</span><br>
+          <span class="font-bold">{{ info.duration }}</span></div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if notices %}
+<section data-reveal class="bg-ink text-white py-20 rounded-[2.5rem] max-w-6xl mx-auto md:mx-6 lg:mx-auto my-4">
+  <div class="max-w-6xl mx-auto px-6 lg:px-10">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <p class="eyebrow mb-3">Latest</p>
+        <h2 class="text-3xl font-bold">Notices</h2>
+      </div>
+      <a href="{% url 'notices' %}" class="text-sm font-bold text-brand hover:underline">View all &rarr;</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 stagger">
+      {% for notice in notices %}
+      <div data-reveal class="border-t-2 border-brand pt-5 pb-2 px-3 -mx-2 rounded-b-xl transition-all duration-300 hover:bg-white/5 hover:-translate-y-1">
+        <p class="text-xs text-white/50 mb-2 font-mono">{{ notice.published_date|date:"d M Y" }}</p>
+        <h3 class="font-bold mb-2">{{ notice.title }}</h3>
+        <p class="text-sm text-white/70 leading-relaxed">{{ notice.description|truncatewords:20 }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if achievements %}
+<section data-reveal class="max-w-6xl mx-auto px-6 py-20">
+  <div class="flex items-end justify-between mb-10">
+    <div>
+      <p class="eyebrow mb-3">Proof of Work</p>
+      <h2 class="text-3xl font-bold">Recent Achievements</h2>
+    </div>
+    <a href="{% url 'achievements' %}" class="text-sm font-bold text-brand hover:underline">View all &rarr;</a>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 stagger">
+    {% for a in achievements %}
+    <div data-reveal class="border border-hair p-6 card-lift">
+      {% if a.achievement_date %}
+      <p class="text-xs text-muted mb-2">{{ a.achievement_date|date:"d M Y" }}</p>
+      {% endif %}
+      <h3 class="font-bold mb-2 flex items-start"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>{{ a.title }}</h3>
+      {% if a.description %}
+      <p class="text-sm text-muted leading-relaxed">{{ a.description|truncatewords:18 }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section data-reveal class="border-t border-hair">
+  <div class="max-w-6xl mx-auto px-6 py-16 flex flex-col md:flex-row items-center justify-between gap-6">
+    <div>
+      <h2 class="text-2xl font-bold">Ready to enroll?</h2>
+      <p class="text-muted mt-1">Applications are reviewed within 24 hours.</p>
+    </div>
+    <a href="{% url 'admission' %}"
+       class="btn btn-primary whitespace-nowrap">
+      Apply for Admission
+    </a>
+  </div>
+</section>
+
+{% endblock %}

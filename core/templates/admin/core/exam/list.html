@@ -1,0 +1,101 @@
+{% extends "admin/core/dashboard_base.html" %}
+
+{% block title %}Exams — Dashboard{% endblock %}
+{% block crumb %}Exams{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Exams</h1>
+    <p class="page-sub">{{ total_count }} exam{{ total_count|pluralize }} total</p>
+  </div>
+  <div class="row-actions">
+    <a href="{% url 'admin:core_exam_add' %}" class="btn btn-accent">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
+      Add Exam
+    </a>
+  </div>
+</div>
+
+<div class="panel" style="padding: 18px 22px; margin-bottom: 20px;">
+  <form method="get" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+    <div style="flex: 2; min-width: 200px;">
+      <label class="form-label" for="id_q">Search exam name</label>
+      <input type="text" id="id_q" name="q" value="{{ search_query }}" placeholder="e.g. Half Yearly">
+    </div>
+    <div style="flex: 1; min-width: 200px;">
+      <label class="form-label" for="id_class">Class</label>
+      <select id="id_class" name="class">
+        <option value="">All classes</option>
+        {% for c in classes %}
+        <option value="{{ c.id }}" {% if active_class_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.class_name }} ({{ c.academic_year }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="row-actions">
+      <button type="submit" class="btn btn-accent btn-sm">Filter</button>
+      <a href="{% url 'admin:core_exam_changelist' %}" class="btn btn-ghost btn-sm">Clear</a>
+    </div>
+  </form>
+</div>
+
+<div class="panel">
+  {% if exams %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Exam Name</th>
+        <th>Class</th>
+        <th>Date</th>
+        <th>Results</th>
+        <th style="width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for exam in exams %}
+      <tr>
+        <td style="font-weight:600;">{{ exam.exam_name }}</td>
+        <td>{{ exam.class_obj.class_name }}</td>
+        <td>{{ exam.exam_date|date:"d M Y" }}</td>
+        <td><span class="pill">{{ exam.result_count }} recorded</span></td>
+        <td>
+          <div class="row-actions">
+            <a href="{% url 'admin:core_exam_view' exam.pk %}" class="btn btn-ghost btn-sm">View</a>
+            <a href="{% url 'admin:core_exam_change' exam.pk %}" class="btn btn-ghost btn-sm">Edit</a>
+            <form method="post" action="{% url 'admin:core_exam_delete' exam.pk %}" onsubmit="return confirm('Delete {{ exam.exam_name|escapejs }}? This will also delete all its recorded results.');" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <p>No exams match these filters.</p>
+    <a href="{% url 'admin:core_exam_add' %}" class="btn btn-accent btn-sm" style="margin-top:10px;">Add Exam</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="row-actions" style="justify-content:center; margin-top:22px;">
+  {% if page_obj.has_previous %}
+  <a class="btn btn-ghost btn-sm" href="?{% if preserved_querystring %}{{ preserved_querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+  {% endif %}
+  {% for p in page_range %}
+    {% if p %}
+      <a class="btn {% if p == page_obj.number %}btn-accent{% else %}btn-ghost{% endif %} btn-sm" href="?{% if preserved_querystring %}{{ preserved_querystring }}&{% endif %}page={{ p }}">{{ p }}</a>
+    {% else %}
+      <span style="padding: 0 4px; color: var(--muted);">&hellip;</span>
+    {% endif %}
+  {% endfor %}
+  {% if page_obj.has_next %}
+  <a class="btn btn-ghost btn-sm" href="?{% if preserved_querystring %}{{ preserved_querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "admin/core/dashboard_base.html" %}
+{% block title %}Contact Messages — Dashboard{% endblock %}
+{% block crumb %}Contact Messages{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Contact Messages</h1>
+    <p class="page-sub">{{ contact_messages|length }} message{{ contact_messages|length|pluralize }}{% if active_status %} — filtered by <strong>{{ active_status }}</strong>{% endif %}</p>
+  </div>
+  <a href="{% url 'admin:core_contactmessage_add' %}" class="btn btn-accent">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+    Add a message
+  </a>
+</div>
+
+<div class="row-actions" style="margin-bottom:18px;">
+  <a href="{% url 'admin:core_contactmessage_changelist' %}" class="btn btn-sm {% if not active_status %}btn-accent{% else %}btn-ghost{% endif %}">All</a>
+  {% for value, label in status_choices %}
+  <a href="{% url 'admin:core_contactmessage_changelist' %}?status={{ value }}" class="btn btn-sm {% if active_status == value %}btn-accent{% else %}btn-ghost{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="panel">
+  {% if contact_messages %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Status</th>
+        <th>Received</th>
+        <th style="width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for msg in contact_messages %}
+      <tr>
+        <td style="font-weight:600;">{{ msg.name }}</td>
+        <td>{{ msg.phone|default:"—" }}</td>
+        <td>{{ msg.email|default:"—" }}</td>
+        <td><span class="pill">{{ msg.status }}</span></td>
+        <td>{{ msg.created_at|date:"d M Y" }}</td>
+        <td>
+          <div class="row-actions">
+            <a class="btn btn-ghost btn-sm" href="{% url 'admin:core_contactmessage_view' msg.id %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              View
+            </a>
+            <a class="btn btn-ghost btn-sm" href="{% url 'admin:core_contactmessage_change' msg.id %}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Edit
+            </a>
+            <form method="post" action="{% url 'admin:core_contactmessage_delete' msg.id %}" onsubmit="return confirm('Delete this message? This cannot be undone.');" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                Delete
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <p>
+      {% if active_status %}No messages with this status.{% else %}No contact messages yet.{% endif %}
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

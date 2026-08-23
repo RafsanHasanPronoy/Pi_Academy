@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+{% block title %}Faculty — Pi - π Academy{% endblock %}
+
+{% block content %}
+<section data-reveal class="max-w-6xl mx-auto px-6 pt-16 pb-8">
+  <p class="eyebrow mb-3">Our Team</p>
+  <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Faculty</h1>
+  <p class="mt-5 text-lg text-muted max-w-2xl leading-relaxed">
+    Every batch is led by a teacher assigned to it directly — not rotated
+    week to week.
+  </p>
+</section>
+
+<div class="ruler-divider"></div>
+
+<section data-reveal class="max-w-6xl mx-auto px-6 py-16">
+  {% if faculty_data %}
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 stagger">
+    {% for entry in faculty_data %}
+    <div data-reveal class="border border-hair p-7 card-lift">
+      <h3 class="text-lg font-bold mb-1">{{ entry.faculty.full_name }}</h3>
+      {% if entry.faculty.designation %}
+      <p class="text-sm text-brand font-semibold mb-4">{{ entry.faculty.designation }}</p>
+      {% endif %}
+      {% if entry.subjects %}
+      <p class="eyebrow mb-2 text-[11px]">Teaches</p>
+      <ul class="space-y-1.5 text-sm">
+        {% for subject in entry.subjects %}
+        <li class="flex items-start"><svg class="tick-svg" viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg>{{ subject }}</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-sm text-muted">Batch assignments coming soon.</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-muted">Faculty information isn't published yet — check back soon.</p>
+  {% endif %}
+</section>
+{% endblock %}

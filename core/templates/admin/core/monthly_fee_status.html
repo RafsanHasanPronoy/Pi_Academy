@@ -1,0 +1,83 @@
+{% extends "admin/core/dashboard_base.html" %}
+
+{% block title %}Monthly Fee Status — Dashboard{% endblock %}
+{% block crumb %}Monthly Fee Status{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin:core_studentpayment_changelist' %}" class="back-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  Back to Student Payments
+</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Monthly Fee Status</h1>
+    <p class="page-sub">{{ target_month_label }} &middot; {{ paid_count }} paid, {{ due_count }} due of {{ total_students }} active student{{ total_students|pluralize }}</p>
+  </div>
+  <div class="row-actions">
+    <a href="?month={{ prev_month }}" class="btn btn-ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      {{ prev_month_label }}
+    </a>
+    <form method="get" style="margin:0;">
+      <input type="month" name="month" value="{{ target_month|date:'Y-m' }}" onchange="this.form.submit()"
+             style="min-width:150px; text-align:center; font-weight:700; border-color:var(--accent-soft-border); background:var(--accent-soft); color:var(--accent-hover);">
+    </form>
+    <a href="?month={{ next_month }}" class="btn btn-ghost">
+      {{ next_month_label }}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+  </div>
+</div>
+
+<div class="panel">
+  {% if rows %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Class</th>
+        <th>Batch</th>
+        <th>Status</th>
+        <th>Amount Paid</th>
+        <th style="width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>
+          <div style="font-weight:600;">{{ row.student.full_name }}</div>
+          <div style="font-size:0.8rem; color:var(--muted);">{{ row.student.student_code }}</div>
+        </td>
+        <td>{{ row.student.class_obj.class_name|default:"—" }}</td>
+        <td>{{ row.student.batch.batch_name|default:"—" }}</td>
+        <td>
+          {% if row.is_paid %}
+          <span class="pill" style="background:var(--accent-soft); border-color:var(--accent-soft-border); color:var(--accent-hover);">Paid</span>
+          {% else %}
+          <span class="pill" style="background:var(--danger-soft); border-color:var(--danger-soft-border); color:var(--danger);">Due</span>
+          {% endif %}
+        </td>
+        <td style="font-weight:700;">{% if row.amount_paid %}৳{{ row.amount_paid|floatformat:2 }}{% else %}&mdash;{% endif %}</td>
+        <td>
+          <div class="row-actions">
+            {% if row.is_paid %}
+            <a href="{{ row.receipt_url }}" target="_blank" class="btn btn-ghost btn-sm">Receipt</a>
+            {% else %}
+            <a href="{{ row.record_payment_url }}" class="btn btn-accent btn-sm">Record Payment</a>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-4 3.5-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg>
+    <p>No active students to show for {{ target_month_label }}.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
