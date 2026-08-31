@@ -14,6 +14,8 @@ import environ
 import sys
 from pathlib import Path
 
+import whitenoise
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -175,6 +177,7 @@ STORAGES = {
             "file_overwrite": True,
             "addressing_style": "path",
             "signature_version": "s3v4",
+            "custom_domain": "rhwmfcdvkikyyroknspq.supabase.co/storage/v1/object/public/pi-academy-media",
         },
     },
     "staticfiles": {
